@@ -421,17 +421,31 @@ export async function deleteLedger(id: string) {
             if (allAttachments.length > 0) {
                 console.log(`[Clean Ledger] Deleting ${allAttachments.length} attachments from ${ledgerTxns.length} transactions`)
 
-                const deletePromises = allAttachments.map(att =>
-                    fetch('/api/r2-delete', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ key: att.key })
-                    })
-                        .then(res => res.ok ? console.log(`[R2] Deleted: ${att.key}`) : console.error(`[R2] Failed: ${att.key}`))
-                        .catch(e => console.error(`[R2] Error: ${att.key}`, e))
-                )
+                const deletePromises = allAttachments.map(async (att) => {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
 
-                await Promise.allSettled(deletePromises)
+                    try {
+                        const res = await fetch('/api/r2-delete', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ key: att.key }),
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+
+                        if (res.ok) console.log(`[R2] Deleted: ${att.key}`);
+                        else console.error(`[R2] Failed: ${att.key}, Status: ${res.status}`);
+                    } catch (e: any) {
+                        if (e.name === 'AbortError') {
+                            console.error(`[R2] Timeout deleting: ${att.key}`);
+                        } else {
+                            console.error(`[R2] Error: ${att.key}`, e);
+                        }
+                    }
+                });
+
+                await Promise.allSettled(deletePromises);
             }
 
             // 2b. Delete transactions
