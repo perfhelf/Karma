@@ -1,10 +1,10 @@
 import type { Ledger, Category, Transaction } from './data'
 
 export const mockLedgers: Ledger[] = [
-    { id: 'ledger-1', name: '日常开销', icon: '💳', color: 'blue', is_default: true },
-    { id: 'ledger-2', name: '旅行基金', icon: '✈️', color: 'green', is_default: false },
-    { id: 'ledger-3', name: '公司报销', icon: '🏢', color: 'orange', is_default: false },
-    { id: 'ledger-4', name: '私房钱', icon: '🔒', color: 'gray', is_default: false },
+    { id: 'ledger-1', name: '日常开销', icon: '💳', color: 'blue', is_default: true, is_archived: false },
+    { id: 'ledger-2', name: '旅行基金', icon: '✈️', color: 'green', is_default: false, is_archived: false },
+    { id: 'ledger-3', name: '公司报销', icon: '🏢', color: 'orange', is_default: false, is_archived: false },
+    { id: 'ledger-4', name: '私房钱', icon: '🔒', color: 'gray', is_default: false, is_archived: false },
 ]
 
 export const mockCategories: Category[] = [
