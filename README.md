@@ -22,48 +22,59 @@
 > [!IMPORTANT]
 > **🔴 Live Demo**: [https://karma.xuebz.com/](https://karma.xuebz.com/)
 >
-> Experience the full **"Guest Demo"** mode with pre-populated data (2 years of transactions).
+> Experience the **"Guest Demo"** mode with pre-populated data (2024-2026).
 > No signup required. Just click **"👋 Guest Demo"** on the login page.
 > *Note: Guest data is stored locally in your browser memory and resets on refresh. It does not touch the real database.*
 
 ## 📖 Introduction (简介)
 
-**鲲侯·Karma** (Kunhou Karma) represents a philosophical approach to personal finance management. It is not merely a tool for recording numbers, but a system designed with the **Clean Algorithm** philosophy—ensuring that your digital footprint is as precise and intentional as your financial decisions.
+**Kunhou Karma** is not just a bookkeeping tool; it is a **"Personal Micro-SaaS Financial System"** designed for the modern era.
 
-Built for those who demand **control**, **privacy**, and **integrity** in their data.
+Most finance apps are either too simple (manual input only) or too complex (requiring Docker/Servers). Karma strikes the perfect balance by leveraging a **Serverless + Edge** architecture. It delivers enterprise-grade security, infinite scalability, and zero maintenance cost for individual users.
 
-> "Data that cannot be cleanly deleted is a debt." — *The Philosophy of Clean Algorithms*
+**鲲侯·Karma** 不仅仅是一个记账工具，它是一套现代化的 **"个人微型金融 SaaS 系统"**。
+大多数记账软件要么太简单（只是个 Excel），要么太重（需要自己维护服务器 docker）。Karma 通过 **Serverless + Edge** 架构实现了完美的平衡：企业级的安全与高可用，同时保持**零运维成本**。
 
-## ✨ Key Features (核心特性)
+## 🌟 Why Karma? (核心亮点)
 
-### 1. The Clean Algorithm (清洁算法)
-Karma implements a strict **Atomic Deletion Protocol**. When a transaction is removed, the system ensures complete eradication of all associated assets across distributed systems.
-- 🧹 **No Data Left Behind**: Deleting a record triggers a synchronous verify-and-destroy sequence for all attachments in Cloudflare R2.
-- 🛡️ **Orphan Prevention**: Database records are only removed after successful verification of external asset deletion.
+### 1. Zero Maintenance Architecture (零运维架构)
+Karma runs entirely on the Edge. No servers to patch. No disks to fill up.
+- **Compute**: Vercel Edge Functions (Global CDN Distribution)
+- **Database**: Supabase (PostgreSQL with RLS Security)
+- **Assets**: Cloudflare R2 (AWS S3 Compatible, Zero Egress Fees)
 
-### 2. Decoupled Storage Architecture (数据解耦)
-Following modern distributed system best practices, Karma separates metadata from heavy assets.
-- **Supabase**: Handles relational data, real-time subscriptions, and authentication.
-- **Cloudflare R2**: Provides high-performance, egress-free object storage for attachments (receipts, contracts, invoices).
+### 2. The Cleaning Algorithm (清洁算法) ✨
+We take "Data Ownership" seriously. Deleting an account isn't just a flag update.
+- **Physical Destruction**: When you delete a transaction or account, Karma recursively calls Cloudflare R2 to physically destroy every attached receipt image.
+- **No Residuals**: We ensure no "Orphan Data" is ever left behind in your storage buckets.
 
-### 3. Permission Slot System (精准归档)
-A reimagined attachment interface designed for power users.
-- **10 Independent Slots**: Unlike chaotic drag-and-drop zones, the Slot System offers 10 discrete, addressable units for attachments.
-- **Dual-Mode Interaction**:
-  - Click the **Icon** to browse files.
-  - Click the **Space** to focus and `Ctrl+V` paste directly into a specific slot.
+### 3. Advanced Security & Isolation (分布式风控) 🛡️
+- **Dual-Factor Zombie Check**:
+  Your account activity is tracked via a distributed "Heartbeat" system. Even if you don't login to the main dashboard, your activity in Karma sends survival signals to prevent your account from being flagged as inactive. (Karma ↔ Sub-App Heartbeat Sync).
+- **Scope Lockdown**:
+  We distinguish between `Local Logout` (clear current session) and `Global Logout` (destroy all sessions), preventing accidental cross-app session termination.
+
+### 4. Decoupled Authorization (权限解耦) 🔐
+Karma operates on a strictly isolated authorization table (`karma_authorized_users`). Your status in Karma is completely independent of other apps in the ecosystem (like user matrix), ensuring true multi-tenant isolation even within a shared database architecture.
+
+## ⚡ Functional Features (功能特性)
+
+*   **Multi-Currency Engine**: Supports CNY, USD, EUR, GBP, JPY, HKD, AUD, MYR, THB, SGD with auto-updating exchange rates.
+*   **50-Year Visualization**: Dashboard supports a timeline from 2020 to 2070.
+*   **Permission Slot System**: A reimagined, 10-slot dedicated attachment interface for power users.
+*   **Admin God View**: Built-in specialized administration panel for user management.
 
 ## 🛠️ Tech Stack (技术栈)
 
-- **Frontend**: Vue 3, Vite, TailwindCSS
-- **Language**: TypeScript
-- **Backend (BaaS)**: Supabase
-- **Storage**: Cloudflare R2 (via AWS S3 SDK)
+This project is a textbook example of the "Golden Triangle" stack:
+
+- **Frontend**: Vue 3 (Composition API), Vite, TailwindCSS v4
+- **Language**: TypeScript (Strict Mode)
+- **Backend**: Supabase (PostgreSQL, Auth, Edge Functions)
+- **Storage**: Cloudflare R2 (S3 Protocol)
 - **Deployment**: Vercel
 
 ## 🚀 Getting Started
-
-To run the Karma system locally:
 
 1. **Clone the repository**
    ```bash
@@ -77,7 +88,7 @@ To run the Karma system locally:
    ```
 
 3. **Configure Environment**
-   Create a `.env` file in the root directory with your credentials:
+   Create a `.env` file in the root directory:
    ```env
    VITE_SUPABASE_URL=your_supabase_url
    VITE_SUPABASE_ANON_KEY=your_supabase_key
@@ -99,5 +110,5 @@ This project is open-sourced under the [MIT License](LICENSE).
 ---
 
 <p align="center">
-  Built with ❤️ by <b>perfhelf</b>
+  Built with ❤️ by <b>perfhelf</b> (Xuebz Design)
 </p>
