@@ -454,6 +454,9 @@ export async function addTransaction(transaction: Omit<Transaction, 'id' | 'crea
     }
 
     // 2. Prepare DB record (Metadata + Attachment Keys)
+    // Get current user for robustness
+    const { data: { user } } = await supabase.auth.getUser()
+
     const dbRecord = {
         ledger_id: transaction.ledger_id,
         category_id: transaction.category_id,
@@ -462,7 +465,8 @@ export async function addTransaction(transaction: Omit<Transaction, 'id' | 'crea
         type: transaction.type,
         description: transaction.description,
         transaction_date: transaction.transaction_date,
-        attachments: uploadedAttachments // JSONB
+        attachments: uploadedAttachments, // JSONB
+        user_id: user?.id // Explicit user_id
     }
 
     // 3. Insert into Supabase
@@ -472,8 +476,8 @@ export async function addTransaction(transaction: Omit<Transaction, 'id' | 'crea
             ...dbRecord,
             created_at: new Date().toISOString()
         }
+        // ... (mock logic unchanged)
         transactions.value.unshift(newTxn)
-        // Re-sort
         transactions.value.sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime())
         return newTxn
     }
