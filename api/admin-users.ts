@@ -49,10 +49,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const token = authHeader.replace('Bearer ', '');
     const { data: { user: caller }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
-    if (authError || !caller || !ADMIN_EMAILS.includes(caller.email || '')) {
+    const safeEmail = (caller?.email || '').toLowerCase();
+    const safeWhitelist = ADMIN_EMAILS.map(e => e.toLowerCase());
+
+    if (authError || !caller || !safeWhitelist.includes(safeEmail)) {
+        console.error('Admin Auth Failed:', {
+            email: caller?.email,
+            safeEmail,
+            whitelist: safeWhitelist,
+            error: authError
+        });
+
         return res.status(403).json({
             error: 'Admin access required',
-            seen_email: caller?.email,
+            seen_email: caller?.email, // Show original email
+            normalized_email: safeEmail,
             whitelist: ADMIN_EMAILS,
             has_error: !!authError,
             error_msg: authError?.message
