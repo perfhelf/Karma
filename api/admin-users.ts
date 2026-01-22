@@ -44,8 +44,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(401).json({ error: 'Missing authorization' });
     }
 
-    // Fix: Strict trimming to prevent "invalid header value" errors
-    const token = authHeader.replace('Bearer ', '').trim();
+    // Fix: Aggressive cleaning to remove newlines, spaces, and quotes
+    const token = authHeader.replace('Bearer ', '').replace(/[\n\r\t\"\'\s]/g, '');
     const { data: { user: caller }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
     const safeEmail = (caller?.email || '').toLowerCase();

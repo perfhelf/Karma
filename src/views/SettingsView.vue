@@ -244,13 +244,17 @@ async function loadUsers() {
     try {
         const { data: { session } } = await supabase.auth.getSession()
         
+        // Clean token to prevent "Invalid header value" errors
+        const rawToken = session?.access_token || ''
+        const cleanToken = rawToken.replace(/[\n\r\t\"\'\s]/g, '')
+
         // DEBUG: Check Environment WITH Token
         fetch('/api/debug-auth', {
-            headers: { 'Authorization': `Bearer ${session?.access_token}` }
+            headers: { 'Authorization': `Bearer ${cleanToken}` }
         }).then(r => r.json()).then(d => console.log('🔍 Auth Debug:', d))
 
         const res = await fetch('/api/admin-users', {
-            headers: { 'Authorization': `Bearer ${session?.access_token}` }
+            headers: { 'Authorization': `Bearer ${cleanToken}` }
         })
         const data = await res.json()
 
