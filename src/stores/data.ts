@@ -441,12 +441,14 @@ export async function deleteLedger(id: string) {
         }
 
         // [Clean Algorithm] Step 3: Delete Ledger
-        const { error } = await supabase
+        const { error, count } = await supabase
             .from('ledgers')
-            .delete()
+            .delete({ count: 'exact' })
             .eq('id', id)
 
         if (error) throw error
+        if (count === 0) throw new Error('Ledger not found or permission denied')
+
 
         // [Clean Algorithm] Step 4: Update Local State
         ledgers.value = ledgers.value.filter(l => l.id !== id)
