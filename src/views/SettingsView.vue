@@ -116,7 +116,7 @@ async function handleDeleteAllData() {
     console.log('[Cleaning Algorithm] DB Cleaned.')
     
     // Step 4: Sign out
-    await supabase.auth.signOut()
+    await supabase.auth.signOut({ scope: 'local' })
     router.push('/login')
     
   } catch (e: any) {
