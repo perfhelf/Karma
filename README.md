@@ -19,6 +19,13 @@
 
 ---
 
+> [!IMPORTANT]
+> **🔴 Live Demo**: [https://karma.xuebz.com/](https://karma.xuebz.com/)
+>
+> Experience the full **"Guest Demo"** mode with pre-populated data (2 years of transactions).
+> No signup required. Just click **"👋 Guest Demo"** on the login page.
+> *Note: Guest data is stored locally in your browser memory and resets on refresh. It does not touch the real database.*
+
 ## 📖 Introduction (简介)
 
 **鲲侯·Karma** (Kunhou Karma) represents a philosophical approach to personal finance management. It is not merely a tool for recording numbers, but a system designed with the **Clean Algorithm** philosophy—ensuring that your digital footprint is as precise and intentional as your financial decisions.
