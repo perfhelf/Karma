@@ -230,7 +230,7 @@ async function handleDeleteTransaction(id: string) {
       @delete="handleDeleteTransaction"
     />
 
-  </div>
+
 </template>
 
 <script setup lang="ts">
