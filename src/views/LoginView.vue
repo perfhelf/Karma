@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
-import { isDemoMode } from '../stores/data'
+import { isDemoMode, fetchInitialData } from '../stores/data'
 
 const router = useRouter()
 
@@ -42,8 +42,9 @@ async function handleLogin() {
   }
 }
 
-function handleDemoLogin() {
+async function handleDemoLogin() {
     isDemoMode.value = true
+    await fetchInitialData()
     router.push('/')
 }
 </script>
