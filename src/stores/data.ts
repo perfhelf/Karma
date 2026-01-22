@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import { supabase } from '../lib/supabase'
+import { generateMockTransactions, mockLedgers, mockCategories } from './mockData'
 
 // ============================================
 // UNIFIED DATA STORE FOR KARMA (Supabase + R2)
@@ -7,6 +8,7 @@ import { supabase } from '../lib/supabase'
 
 const isLoading = ref(false)
 const error = ref<string | null>(null)
+export const isDemoMode = ref(false)
 
 // ==================== LEDGERS ====================
 export interface Ledger {
@@ -227,6 +229,17 @@ export async function uploadFileToR2(file: File): Promise<Attachment | null> {
     formData.append('folder', 'karma') // Separate folder for Karma
 
     try {
+        if (isDemoMode.value) {
+            // Mock upload
+            await new Promise(r => setTimeout(r, 500))
+            return {
+                key: `mock-key-${Date.now()}`,
+                url: URL.createObjectURL(file), // Local blob url for preview
+                name: file.name,
+                type: file.type
+            }
+        }
+
         const response = await fetch('/api/r2-upload', {
             method: 'POST',
             body: formData
@@ -258,6 +271,18 @@ export async function fetchInitialData() {
     error.value = null
 
     try {
+        if (isDemoMode.value) {
+            // Load Mock Data
+            ledgers.value = mockLedgers
+            categories.value = mockCategories
+            // Generate transactions if empty, or just regenerate for demo
+            if (transactions.value.length === 0) {
+                transactions.value = generateMockTransactions()
+            }
+            isLoading.value = false
+            return
+        }
+
         // 1. Fetch Ledgers
         const { data: ledgersData, error: ledgersError } = await supabase
             .from('ledgers')
@@ -296,8 +321,12 @@ export async function fetchInitialData() {
 
 // ---- Ledger Actions ----
 export async function addLedger(ledger: Omit<Ledger, 'id'>) {
-    // If set to default, unset others first if logic requires unique default
-    // But simplistic approach: just insert
+    if (isDemoMode.value) {
+        const newLedger = { ...ledger, id: `mock-ledger-${Date.now()}` }
+        ledgers.value.push(newLedger)
+        return newLedger
+    }
+
     const { data, error } = await supabase
         .from('ledgers')
         .insert([ledger])
@@ -310,6 +339,15 @@ export async function addLedger(ledger: Omit<Ledger, 'id'>) {
 }
 
 export async function updateLedger(id: string, updates: Partial<Ledger>) {
+    if (isDemoMode.value) {
+        const idx = ledgers.value.findIndex(l => l.id === id)
+        if (idx !== -1) {
+            ledgers.value[idx] = { ...ledgers.value[idx], ...updates }
+            return ledgers.value[idx]
+        }
+        return null
+    }
+
     const { data, error } = await supabase
         .from('ledgers')
         .update(updates)
@@ -326,6 +364,14 @@ export async function updateLedger(id: string, updates: Partial<Ledger>) {
 }
 
 export async function deleteLedger(id: string) {
+    if (isDemoMode.value) {
+        ledgers.value = ledgers.value.filter(l => l.id !== id)
+        transactions.value.forEach(t => {
+            if (t.ledger_id === id) t.ledger_id = null
+        })
+        return
+    }
+
     const { error } = await supabase
         .from('ledgers')
         .delete()
@@ -370,6 +416,18 @@ export async function addTransaction(transaction: Omit<Transaction, 'id' | 'crea
     }
 
     // 3. Insert into Supabase
+    if (isDemoMode.value) {
+        const newTxn: Transaction = {
+            id: `mock-txn-${Date.now()}`,
+            ...dbRecord,
+            created_at: new Date().toISOString()
+        }
+        transactions.value.unshift(newTxn)
+        // Re-sort
+        transactions.value.sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime())
+        return newTxn
+    }
+
     const { data, error } = await supabase
         .from('transactions')
         .insert([dbRecord])
@@ -393,24 +451,31 @@ export async function deleteTransaction(id: string) {
     if (txn?.attachments && txn.attachments.length > 0) {
         console.log(`[Clean Algorithm] Ensuring deletion of ${txn.attachments.length} attachments for txn ${id}`)
 
-        // We use Promise.allSettled to ensure we try to delete all, even if some fail
-        const deletePromises = txn.attachments.map(att =>
-            fetch('/api/r2-delete', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ key: att.key })
-            })
-                .then(res => {
-                    if (res.ok) console.log(`[R2] Deleted: ${att.key}`)
-                    else console.error(`[R2] Failed to delete: ${att.key}`)
+        if (!isDemoMode.value) {
+            // We use Promise.allSettled to ensure we try to delete all, even if some fail
+            const deletePromises = txn.attachments.map(att =>
+                fetch('/api/r2-delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: att.key })
                 })
-                .catch(e => console.error(`[R2] Error deleting ${att.key}:`, e))
-        )
+                    .then(res => {
+                        if (res.ok) console.log(`[R2] Deleted: ${att.key}`)
+                        else console.error(`[R2] Failed to delete: ${att.key}`)
+                    })
+                    .catch(e => console.error(`[R2] Error deleting ${att.key}:`, e))
+            )
 
-        await Promise.allSettled(deletePromises)
+            await Promise.allSettled(deletePromises)
+        }
     }
 
     // 3. Delete DB Record
+    if (isDemoMode.value) {
+        transactions.value = transactions.value.filter(t => t.id !== id)
+        return
+    }
+
     const { error } = await supabase
         .from('transactions')
         .delete()

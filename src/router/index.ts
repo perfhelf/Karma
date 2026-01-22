@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { supabase } from '../lib/supabase'
+import { isDemoMode } from '../stores/data'
 
 const routes = [
     {
@@ -54,6 +55,11 @@ const router = createRouter({
 router.beforeEach(async (to, _from, next) => {
     // Check if route requires auth
     if (to.matched.some(record => record.meta.requiresAuth)) {
+        if (isDemoMode.value) {
+            next()
+            return
+        }
+
         const { data: { session } } = await supabase.auth.getSession()
 
         if (!session) {

@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
+import { isDemoMode } from '../stores/data'
 
 const router = useRouter()
 
@@ -39,6 +40,11 @@ async function handleLogin() {
   } finally {
     isLoading.value = false
   }
+}
+
+function handleDemoLogin() {
+    isDemoMode.value = true
+    router.push('/')
 }
 </script>
 
@@ -111,13 +117,23 @@ async function handleLogin() {
               ⚠️ {{ error }}
             </div>
 
-            <button
-              type="submit"
-              :disabled="isLoading"
-              class="w-full py-4 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white font-bold rounded-xl transition-all shadow-lg shadow-primary-600/30 transform active:scale-[0.98]"
-            >
-              {{ isLoading ? '登录中...' : '立即登录' }}
-            </button>
+            <div class="flex flex-col gap-3">
+                <button
+                type="submit"
+                :disabled="isLoading"
+                class="w-full py-4 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white font-bold rounded-xl transition-all shadow-lg shadow-primary-600/30 transform active:scale-[0.98]"
+                >
+                {{ isLoading ? '登录中...' : '立即登录' }}
+                </button>
+
+                <button
+                type="button"
+                @click="handleDemoLogin"
+                class="w-full py-3 bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 font-bold rounded-xl border-2 border-dashed border-gray-300 dark:border-slate-500 transition-all font-medium"
+                >
+                👋 访客试用 (Guest Demo)
+                </button>
+            </div>
           </form>
         </div>
         
