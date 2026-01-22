@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Plus, Edit2, Trash2, BookOpen, Check } from 'lucide-vue-next'
+import { Plus, Edit2, Trash2, BookOpen, Check, Archive, RotateCcw } from 'lucide-vue-next'
 import { 
   ledgers, 
   emojiCategories, 
@@ -14,6 +14,7 @@ import {
 } from '../stores/data'
 
 const showAddModal = ref(false)
+const showArchivedView = ref(false) // Toggle between active and archived
 const editingLedger = ref<any>(null)
 const newLedger = ref({ name: '', icon: '📒', color: '#22c55e' })
 const activeCategory = ref(emojiCategories[0]?.name || '')
@@ -32,6 +33,11 @@ const ledgerStats = computed(() => {
     count: getLedgerTransactionCount(l.id),
   }))
 })
+
+const activeLedgers = computed(() => ledgerStats.value.filter(level => !level.is_archived))
+const archivedLedgers = computed(() => ledgerStats.value.filter(level => level.is_archived))
+
+const displayLedgers = computed(() => showArchivedView.value ? archivedLedgers.value : activeLedgers.value)
 
 function openAddModal() {
   editingLedger.value = null
@@ -60,7 +66,8 @@ async function saveLedger() {
     } else {
       await addLedger({
         ...newLedger.value,
-        is_default: ledgers.value.length === 0
+        is_default: activeLedgers.value.length === 0, // Should be based on active existence? Or just any.
+        is_archived: false
       })
     }
     showAddModal.value = false
@@ -73,20 +80,11 @@ async function saveLedger() {
 }
 
 async function setDefault(ledger: any) {
-  // Set all others to false first? 
-  // Supabase RLS or trigger might handle this better, but for now:
-  // We'll just update this one to true. Ideally we should set others to false.
-  // Brute force: update all locals to false, then save.
-  // Actually, better to just update this one and let UI reflect.
-  // Strict implementation: Transactionally ensure only one default.
-  // For now, client side optimistic update + server call
-  
   try {
     // Optimistic update locally
     ledgers.value.forEach(l => l.is_default = (l.id === ledger.id))
     
-    // Server update (naive, assuming server triggers/logic or correct manual usage)
-    // To be safe, we should update the previous default to false first
+    // Server update
     const prevDefault = ledgers.value.find(l => l.is_default && l.id !== ledger.id)
     if (prevDefault) await updateLedger(prevDefault.id, { is_default: false })
     
@@ -98,13 +96,34 @@ async function setDefault(ledger: any) {
 }
 
 async function deleteLedger(ledger: any) {
-  if (!confirm(`确定要删除"${ledger.name}"吗？该账本下的账单将移至总账户。`)) return
+  if (!confirm(`确定要彻底删除"${ledger.name}"吗？这将无法恢复。`)) return
   
   try {
     await deleteLedgerAction(ledger.id)
   } catch (e) {
     console.error(e)
     alert('删除失败')
+  }
+}
+
+async function archiveLedger(ledger: any) {
+  if (!confirm(`确定要归档"${ledger.name}"吗？归档后可以在“已归档账本”中查看。`)) return
+  
+  try {
+    await updateLedger(ledger.id, { is_archived: true })
+    showAddModal.value = false
+  } catch (e) {
+    console.error(e)
+    alert('归档失败')
+  }
+}
+
+async function restoreLedger(ledger: any) {
+  try {
+    await updateLedger(ledger.id, { is_archived: false })
+  } catch (e) {
+    console.error(e)
+    alert('恢复失败')
   }
 }
 </script>
@@ -114,17 +133,34 @@ async function deleteLedger(ledger: any) {
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">账本管理</h1>
-        <p class="text-gray-500 dark:text-slate-400 mt-1">管理多个记账账本，独立统计资金流向</p>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+          {{ showArchivedView ? '已归档账本' : '账本管理' }}
+        </h1>
+        <p class="text-gray-500 dark:text-slate-400 mt-1">
+          {{ showArchivedView ? '查看和恢复已归档的账本' : '管理多个记账账本，独立统计资金流向' }}
+        </p>
       </div>
-      <button @click="openAddModal" class="flex items-center gap-2 px-4 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all shadow-lg shadow-primary-500/30">
-        <Plus :size="18" />
-        <span>新建账本</span>
-      </button>
+      <div class="flex gap-2">
+        <button 
+          @click="showArchivedView = !showArchivedView" 
+          class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-200 dark:hover:bg-slate-600 transition-all font-medium"
+        >
+          <Archive :size="18" />
+          <span>{{ showArchivedView ? '返回' : '归档箱' }}</span>
+        </button>
+        <button 
+          v-if="!showArchivedView"
+          @click="openAddModal" 
+          class="flex items-center gap-2 px-4 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all shadow-lg shadow-primary-500/30 font-medium"
+        >
+          <Plus :size="18" />
+          <span>新建账本</span>
+        </button>
+      </div>
     </div>
 
-    <!-- Total Account Card -->
-    <div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-6 text-white shadow-lg">
+    <!-- Total Account Card (Only show in active view) -->
+    <div v-if="!showArchivedView" class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-6 text-white shadow-lg">
       <div class="flex items-center justify-between">
         <div>
           <p class="text-primary-100 text-sm">总账户</p>
@@ -138,11 +174,21 @@ async function deleteLedger(ledger: any) {
     </div>
 
     <!-- Ledgers Grid -->
+    <div v-if="displayLedgers.length === 0" class="text-center py-12">
+        <div class="w-20 h-20 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+            <Archive v-if="showArchivedView" :size="32" />
+            <BookOpen v-else :size="32" />
+        </div>
+        <p class="text-gray-500 dark:text-slate-400">
+            {{ showArchivedView ? '没有已归档的账本' : '暂无账本，快去创建一个吧' }}
+        </p>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div
-        v-for="ledger in ledgerStats"
+        v-for="ledger in displayLedgers"
         :key="ledger.id"
-        class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700 relative overflow-hidden"
+        class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700 relative overflow-hidden transition-all hover:shadow-md"
       >
         <div class="absolute top-0 left-0 right-0 h-1" :style="{ backgroundColor: ledger.color }"></div>
 
@@ -155,18 +201,26 @@ async function deleteLedger(ledger: any) {
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                 {{ ledger.name }}
                 <span v-if="ledger.is_default" class="text-xs px-2 py-0.5 bg-primary-100 dark:bg-primary-900/30 text-primary-600 rounded-full">默认</span>
+                <span v-if="ledger.is_archived" class="text-xs px-2 py-0.5 bg-gray-100 dark:bg-slate-700 text-gray-500 rounded-full">已归档</span>
               </h3>
               <p class="text-sm text-gray-500 dark:text-slate-400">{{ ledger.count }} 笔账单</p>
             </div>
           </div>
           <div class="flex items-center gap-1">
-            <button v-if="!ledger.is_default" @click="setDefault(ledger)" class="p-2 text-gray-400 hover:text-primary-500" title="设为默认">
-              <Check :size="16" />
-            </button>
-            <button @click="openEditModal(ledger)" class="p-2 text-gray-400 hover:text-primary-500">
-              <Edit2 :size="16" />
-            </button>
-            <button @click="deleteLedger(ledger)" class="p-2 text-gray-400 hover:text-red-500">
+            <template v-if="showArchivedView">
+                <button @click="restoreLedger(ledger)" class="p-2 text-gray-400 hover:text-green-500" title="恢复账本">
+                  <RotateCcw :size="16" />
+                </button>
+            </template>
+            <template v-else>
+                <button v-if="!ledger.is_default" @click="setDefault(ledger)" class="p-2 text-gray-400 hover:text-primary-500" title="设为默认">
+                  <Check :size="16" />
+                </button>
+                <button @click="openEditModal(ledger)" class="p-2 text-gray-400 hover:text-primary-500" title="编辑">
+                  <Edit2 :size="16" />
+                </button>
+            </template>
+            <button @click="deleteLedger(ledger)" class="p-2 text-gray-400 hover:text-red-500" title="删除">
               <Trash2 :size="16" />
             </button>
           </div>
@@ -258,6 +312,15 @@ async function deleteLedger(ledger: any) {
           </div>
           
           <div class="p-6 border-t border-gray-100 dark:border-slate-700 flex gap-3 flex-none bg-gray-50 dark:bg-slate-700/30 rounded-b-2xl">
+            <button 
+              v-if="editingLedger" 
+              @click="archiveLedger(editingLedger)" 
+              class="px-4 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-500 transition-all font-medium flex items-center gap-2"
+              title="归档后不显示在主列表，但保留数据"
+            >
+              <Archive :size="18" />
+              <span class="hidden sm:inline">归档</span>
+            </button>
             <button @click="showAddModal = false" class="flex-1 py-3 bg-white dark:bg-slate-600 border border-gray-200 dark:border-slate-500 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-50 transition-all font-medium">取消</button>
             <button @click="saveLedger" class="flex-1 py-3 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all shadow-lg shadow-primary-500/30 font-medium">保存</button>
           </div>

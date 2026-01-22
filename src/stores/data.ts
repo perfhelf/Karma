@@ -17,6 +17,7 @@ export interface Ledger {
     icon: string
     color: string
     is_default: boolean
+    is_archived: boolean
 }
 
 export const ledgers = ref<Ledger[]>([])
@@ -327,9 +328,17 @@ export async function addLedger(ledger: Omit<Ledger, 'id'>) {
         return newLedger
     }
 
+    // Get current user for robustness (Client-side validation of auth)
+    const { data: { user } } = await supabase.auth.getUser()
+
+    const ledgerPayload = {
+        ...ledger,
+        user_id: user?.id // Explicitly passing it guarantees it (if SQL default fails for some reason)
+    }
+
     const { data, error } = await supabase
         .from('ledgers')
-        .insert([ledger])
+        .insert([ledgerPayload])
         .select()
         .single()
 
