@@ -1,4 +1,4 @@
-import { Ledger, Category, Transaction } from './data'
+import type { Ledger, Category, Transaction } from './data'
 
 export const mockLedgers: Ledger[] = [
     { id: 'ledger-1', name: '日常开销', icon: '💳', color: 'blue', is_default: true },
@@ -42,18 +42,21 @@ export function generateMockTransactions(): Transaction[] {
 
         let amount = 0
         let categoryId = ''
-        let ledgerId = mockLedgers[Math.floor(Math.random() * mockLedgers.length)].id
+        const randomLedger = mockLedgers[Math.floor(Math.random() * mockLedgers.length)]
+        let ledgerId = randomLedger ? randomLedger.id : 'ledger-1'
 
         if (isExpense) {
             amount = Math.floor(Math.random() * 500) + 10 // 10 - 510
             // Random expense category
             const expenseCats = ['cat-breakfast', 'cat-lunch', 'cat-dinner', 'cat-taxi', 'cat-subway', 'cat-digital', 'cat-clothes']
-            categoryId = expenseCats[Math.floor(Math.random() * expenseCats.length)]
+            const randomCat = expenseCats[Math.floor(Math.random() * expenseCats.length)]
+            categoryId = randomCat || 'cat-food'
         } else {
             amount = Math.floor(Math.random() * 10000) + 5000 // 5000 - 15000
             // Random income category
             const incomeCats = ['cat-salary', 'cat-bonus']
-            categoryId = incomeCats[Math.floor(Math.random() * incomeCats.length)]
+            const randomCat = incomeCats[Math.floor(Math.random() * incomeCats.length)]
+            categoryId = randomCat || 'cat-salary'
             // Monthly salary usually, but random here for demo
         }
 

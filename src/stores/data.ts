@@ -342,7 +342,7 @@ export async function updateLedger(id: string, updates: Partial<Ledger>) {
     if (isDemoMode.value) {
         const idx = ledgers.value.findIndex(l => l.id === id)
         if (idx !== -1) {
-            ledgers.value[idx] = { ...ledgers.value[idx], ...updates }
+            ledgers.value[idx] = { ...ledgers.value[idx], ...updates } as Ledger
             return ledgers.value[idx]
         }
         return null
