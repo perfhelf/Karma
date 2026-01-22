@@ -27,12 +27,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (supabaseUrl && supabaseKey) {
         try {
+            // Test 1: Outbound connectivity
+            const google = await fetch('https://www.google.com').then(r => r.status).catch(e => e.message);
+
+            // Test 2: Explicit fetch binding
             const supabase = createClient(supabaseUrl, supabaseKey, {
-                auth: { autoRefreshToken: false, persistSession: false }
+                auth: {
+                    autoRefreshToken: false,
+                    persistSession: false
+                },
+                global: {
+                    fetch: fetch
+                }
             });
             const { data, error: err } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1 });
             if (err) error = err;
-            userTest = data;
+            userTest = { data, google_test: google, node_version: process.version };
         } catch (e: any) {
             error = e.message;
         }
