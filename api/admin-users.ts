@@ -52,21 +52,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const safeWhitelist = ADMIN_EMAILS.map(e => e.toLowerCase());
 
     if (authError || !caller || !safeWhitelist.includes(safeEmail)) {
-        console.error('Admin Auth Failed:', {
-            email: caller?.email,
-            safeEmail,
-            whitelist: safeWhitelist,
-            error: authError
-        });
-
         return res.status(403).json({
             error: 'Admin access required',
-            seen_email: caller?.email, // Show original email
-            normalized_email: safeEmail,
-            whitelist: ADMIN_EMAILS,
-            has_error: !!authError,
-            error_msg: authError?.message,
-            version: 'DEBUG_FIX_V1'
         });
     }
 
