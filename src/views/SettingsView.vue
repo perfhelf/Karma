@@ -235,6 +235,36 @@ async function revokeAuthorization(user: any) {
     }
 }
 
+    }
+}
+
+async function loadUsers() {
+    if (!isAdmin.value) return
+    loadingUsers.value = true
+    try {
+        // DEBUG: Check Environment
+        fetch('/api/debug-auth').then(r => r.json()).then(d => console.log('🔍 Auth Debug:', d))
+
+        const { data: { session } } = await supabase.auth.getSession()
+        const res = await fetch('/api/admin-users', {
+            headers: { 'Authorization': `Bearer ${session?.access_token}` }
+        })
+        const data = await res.json()
+        users.value = data.users || []
+        
+        // Load Authorized Status
+        const { data: authData } = await supabase.from('authorized_users').select('user_id, expires_at')
+        if (authData) {
+            authData.forEach((r: any) => authorizedUsersMap.value.set(r.user_id, r.expires_at))
+        }
+    } catch (e: any) {
+        console.error('Admin Load Failed', e)
+        alert('授权中心加载失败: ' + e.message)
+    } finally {
+        loadingUsers.value = false
+    }
+}
+
 onMounted(async () => {
     // Load settings
     const { data: { user } } = await supabase.auth.getUser()
@@ -242,30 +272,7 @@ onMounted(async () => {
         // Check Admin
         if (['perfhelf@gmail.com'].includes(user.email || '')) {
             isAdmin.value = true
-            loadingUsers.value = true
-            // Load Users via Admin API
-            try {
-                // DEBUG: Check Environment
-                fetch('/api/debug-auth').then(r => r.json()).then(d => console.log('🔍 Auth Debug:', d))
-
-                const { data: { session } } = await supabase.auth.getSession()
-                const res = await fetch('/api/admin-users', {
-                    headers: { 'Authorization': `Bearer ${session?.access_token}` }
-                })
-                const data = await res.json()
-                users.value = data.users || []
-                
-                // Load Authorized Status
-                const { data: authData } = await supabase.from('authorized_users').select('user_id, expires_at')
-                if (authData) {
-                    authData.forEach((r: any) => authorizedUsersMap.value.set(r.user_id, r.expires_at))
-                }
-            } catch (e: any) {
-                console.error('Admin Load Failed', e)
-                alert('授权中心加载失败: ' + e.message)
-            } finally {
-                loadingUsers.value = false
-            }
+            loadUsers()
         }
 
         const { data } = await supabase.from('user_settings').select('*').eq('user_id', user.id).single()
@@ -363,12 +370,22 @@ onMounted(async () => {
 
     <!-- ADMIN ZONE (Only for Perfhelf) -->
     <div v-if="isAdmin" class="bg-gray-900 text-white rounded-2xl p-6 shadow-xl border border-gray-700 mt-12">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold text-green-400 flex items-center gap-2">
-                🛡️ 授权中心 (Matrix Auth)
-            </h2>
-            <div class="text-xs bg-red-600 text-white px-2 py-1 rounded font-bold">ADMIN</div>
-        </div>
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-green-400 flex items-center gap-2">
+                    🛡️ 授权中心 (Matrix Auth)
+                </h2>
+                <div class="flex items-center gap-3">
+                     <button 
+                        @click="loadUsers" 
+                        :disabled="loadingUsers"
+                        class="px-3 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md transition-colors disabled:opacity-50 flex items-center gap-2 border border-gray-700"
+                    >
+                        <RefreshCw class="w-3 h-3" :class="{ 'animate-spin': loadingUsers }" />
+                        刷新列表
+                    </button>
+                    <div class="text-xs bg-red-600 text-white px-2 py-1 rounded font-bold">ADMIN</div>
+                </div>
+            </div>
 
         <!-- Authorized Users -->
         <div class="mb-8">
