@@ -245,6 +245,9 @@ onMounted(async () => {
             loadingUsers.value = true
             // Load Users via Admin API
             try {
+                // DEBUG: Check Environment
+                fetch('/api/debug-auth').then(r => r.json()).then(d => console.log('🔍 Auth Debug:', d))
+
                 const { data: { session } } = await supabase.auth.getSession()
                 const res = await fetch('/api/admin-users', {
                     headers: { 'Authorization': `Bearer ${session?.access_token}` }
