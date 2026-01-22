@@ -38,6 +38,7 @@ onMounted(async () => {
 
     if (session) {
        fetchInitialData()
+       updateHeartbeat(session.user.id)
     } else if (route.meta.requiresAuth) {
        router.push('/login')
     }
@@ -48,6 +49,24 @@ onMounted(async () => {
     isReady.value = true
   }
 })
+
+// Heartbeat Sync
+async function updateHeartbeat(userId: string) {
+    try {
+        if (userId) {
+            await supabase.from('profiles').upsert({
+                id: userId,
+                last_active_at: new Date().toISOString(),
+                last_active_site_origin: window.location.origin,
+                email: (await supabase.auth.getUser()).data.user?.email 
+            }, { onConflict: 'id' }).select().single()
+            console.log('💚 Heartbeat sent')
+        }
+    } catch (e) {
+        // Silent fail for heartbeat
+        console.warn('Heartbeat failed', e)
+    }
+}
 </script>
 
 <template>

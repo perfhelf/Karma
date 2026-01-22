@@ -32,6 +32,44 @@ async function handleLogin() {
     }
 
     if (data.user) {
+      const ADMIN_EMAILS = ['perfhelf@gmail.com']
+      
+      // Admin Bypass
+      if (ADMIN_EMAILS.includes(email.value)) {
+          router.push('/')
+          return
+      }
+
+      // Check authorization status
+      const { data: authRecord } = await supabase
+        .from('authorized_users')
+        .select('expires_at')
+        .eq('user_id', data.user.id)
+        .single()
+      
+      if (!authRecord) {
+        error.value = '⛔ 您的账号尚未获得授权，请联系管理员'
+        await supabase.auth.signOut()
+        return
+      }
+      
+      if (authRecord.expires_at) {
+        const expiryDate = new Date(authRecord.expires_at)
+        if (expiryDate < new Date()) {
+          error.value = '⛔ 授权期已到，请联系管理员续约'
+          await supabase.auth.signOut()
+          return
+        }
+      }
+
+      // Heartbeat
+      await supabase.from('profiles').upsert({
+          id: data.user.id,
+          last_active_at: new Date().toISOString(),
+          last_active_site_origin: window.location.origin,
+          email: email.value
+      }, { onConflict: 'id' })
+
       router.push('/')
     }
   } catch (e) {

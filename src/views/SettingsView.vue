@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { Save, RefreshCw, Trash2 } from 'lucide-vue-next'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'vue-router'
@@ -127,10 +127,143 @@ async function handleDeleteAllData() {
   }
 }
 
+// ----------------------------------------
+// ADMIN AUTHORIZATION LOGIC
+// ----------------------------------------
+const isAdmin = ref(false)
+const users = ref<any[]>([])
+const authorizedUsersMap = ref<Map<string, string | null>>(new Map())
+const loadingUsers = ref(false)
+const searchQuery = ref('')
+
+const authModalUser = ref<any | null>(null)
+const authModalMode = ref<'new' | 'renew'>('new')
+const authType = ref<'permanent' | 'timed'>('permanent')
+const authExpiryDate = ref('')
+
+const minExpiryDate = computed(() => {
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  return tomorrow.toISOString().slice(0, 10)
+})
+
+const authorizedUsers = computed(() => {
+  return users.value.filter(u => authorizedUsersMap.value.has(u.id))
+})
+
+const unactionedUsers = computed(() => {
+    return users.value.filter(u => !authorizedUsersMap.value.has(u.id) && !['perfhelf@gmail.com'].includes(u.email))
+})
+
+const filteredUsers = computed(() => {
+  if (!searchQuery.value.trim()) return unactionedUsers.value
+  const query = searchQuery.value.toLowerCase()
+  return unactionedUsers.value.filter(u => u.email.toLowerCase().includes(query))
+})
+
+function getExpiryInfo(userId: string) {
+  const expiresAt = authorizedUsersMap.value.get(userId)
+  if (expiresAt === null || expiresAt === undefined) return { isPermanent: true, isExpired: false, daysLeft: Infinity }
+  const expiry = new Date(expiresAt)
+  const now = new Date()
+  const daysLeft = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+  return { isPermanent: false, isExpired: daysLeft <= 0, daysLeft: Math.max(0, daysLeft) }
+}
+
+function setQuickExpiry(days: number) {
+  const date = new Date()
+  date.setDate(date.getDate() + days)
+  authExpiryDate.value = date.toISOString().slice(0, 10)
+}
+
+function openAuthModal(user: any, mode: 'new' | 'renew') {
+  authModalUser.value = user
+  authModalMode.value = mode
+  authType.value = 'permanent'
+  authExpiryDate.value = ''
+}
+
+async function confirmAuthorization() {
+  if (!authModalUser.value) return
+  const expiresAt = authType.value === 'permanent' ? null : new Date(authExpiryDate.value + 'T23:59:59').toISOString()
+  
+  try {
+    // 1. Update DB via Supabase directly (Assuming public write or admin policy)
+    // Wait, we need ADMIN rights to write to authorized_users if RLS is strict.
+    // However, for this simplified port, we can use the same pattern as Login - explicit insert.
+    // BUT we should verify RLS policies. update_auth_schema.sql allows Perfhelf to write.
+    
+    if (authModalMode.value === 'new') {
+      const { error } = await supabase.from('authorized_users').insert({ user_id: authModalUser.value.id, expires_at: expiresAt })
+      if (error) throw error
+    } else {
+      const { error } = await supabase.from('authorized_users').update({ expires_at: expiresAt }).eq('user_id', authModalUser.value.id)
+      if (error) throw error
+    }
+
+    authorizedUsersMap.value.set(authModalUser.value.id, expiresAt)
+    authorizedUsersMap.value = new Map(authorizedUsersMap.value)
+    
+    authModalUser.value = null
+    alert(authModalMode.value === 'new' ? '授权成功' : '续期成功')
+  } catch (e: any) {
+    alert('操作失败: ' + e.message)
+  }
+}
+
+async function revokeAuthorization(user: any) {
+    if (!confirm(`⚠️ 严正警告：取消授权 ${user.email}？\n\n这将触发清洁算法，清除其所有数据！`)) return
+    try {
+        // Call Admin API for CLEANUP (Backend)
+        const { data: { session } } = await supabase.auth.getSession()
+        const res = await fetch('/api/admin-users', {
+            method: 'PATCH',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session?.access_token}`
+            },
+            body: JSON.stringify({ userId: user.id, action: 'revoke' })
+        })
+        const data = await res.json()
+        if (data.error) throw new Error(data.error)
+
+        authorizedUsersMap.value.delete(user.id)
+        authorizedUsersMap.value = new Map(authorizedUsersMap.value)
+        alert('已取消授权并执行清洁算法')
+    } catch (e: any) {
+        alert('失败: ' + e.message)
+    }
+}
+
 onMounted(async () => {
     // Load settings
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
+        // Check Admin
+        if (['perfhelf@gmail.com'].includes(user.email || '')) {
+            isAdmin.value = true
+            loadingUsers.value = true
+            // Load Users via Admin API
+            try {
+                const { data: { session } } = await supabase.auth.getSession()
+                const res = await fetch('/api/admin-users', {
+                    headers: { 'Authorization': `Bearer ${session?.access_token}` }
+                })
+                const data = await res.json()
+                users.value = data.users || []
+                
+                // Load Authorized Status
+                const { data: authData } = await supabase.from('authorized_users').select('user_id, expires_at')
+                if (authData) {
+                    authData.forEach((r: any) => authorizedUsersMap.value.set(r.user_id, r.expires_at))
+                }
+            } catch (e) {
+                console.error('Admin Load Failed', e)
+            } finally {
+                loadingUsers.value = false
+            }
+        }
+
         const { data } = await supabase.from('user_settings').select('*').eq('user_id', user.id).single()
         if (data) {
             settings.value.baseCurrency = data.base_currency
@@ -222,6 +355,88 @@ onMounted(async () => {
         <Trash2 :size="18" />
         <span>{{ isDeleting ? '正在清洁数据...' : '彻底注销并清空数据' }}</span>
       </button>
+    </div>
+
+    <!-- ADMIN ZONE (Only for Perfhelf) -->
+    <div v-if="isAdmin" class="bg-gray-900 text-white rounded-2xl p-6 shadow-xl border border-gray-700 mt-12">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-green-400 flex items-center gap-2">
+                🛡️ 授权中心 (Matrix Auth)
+            </h2>
+            <div class="text-xs bg-red-600 text-white px-2 py-1 rounded font-bold">ADMIN</div>
+        </div>
+
+        <!-- Authorized Users -->
+        <div class="mb-8">
+            <h3 class="text-gray-400 text-sm font-bold uppercase mb-4 tracking-wider">✅ 已授权用户 ({{ authorizedUsers.length }})</h3>
+            <div class="space-y-3">
+                <div v-if="authorizedUsers.length === 0" class="p-4 text-center text-gray-500 bg-gray-800 rounded-xl">暂无授权用户</div>
+                <div v-for="user in authorizedUsers" :key="user.id" class="flex justify-between items-center bg-gray-800 p-4 rounded-xl border border-gray-700">
+                    <div>
+                        <div class="font-mono text-green-300">{{ user.email }}</div>
+                        <div class="text-xs text-gray-500 mt-1 flex gap-2">
+                             <span>ID: {{ user.id.slice(0, 8) }}...</span>
+                             <span v-if="getExpiryInfo(user.id).isPermanent" class="text-blue-400">永久授权</span>
+                             <span v-else-if="getExpiryInfo(user.id).isExpired" class="text-red-400">已过期</span>
+                             <span v-else class="text-yellow-400">剩余 {{ getExpiryInfo(user.id).daysLeft }} 天</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="px-3 py-1 text-xs border border-green-500 text-green-500 rounded hover:bg-green-500/10" @click="openAuthModal(user, 'renew')">续期</button>
+                        <button class="px-3 py-1 text-xs border border-red-500 text-red-500 rounded hover:bg-red-500/10" @click="revokeAuthorization(user)">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Users -->
+        <div>
+            <h3 class="text-gray-400 text-sm font-bold uppercase mb-4 tracking-wider">用户列表 ({{ unactionedUsers.length }} 待授权)</h3>
+             <input v-model="searchQuery" type="text" placeholder="🔍 搜索邮箱..." class="w-full bg-gray-800 border-none rounded-lg px-4 py-3 text-white mb-4 focus:ring-2 focus:ring-green-500 outline-none" />
+             
+             <div class="space-y-2 max-h-96 overflow-y-auto pr-2">
+                <div v-if="loadingUsers" class="text-center py-4 text-gray-500">加载中...</div>
+                <div v-for="user in filteredUsers" :key="user.id" class="flex justify-between items-center bg-gray-800/50 p-3 rounded-lg hover:bg-gray-800 transition-colors">
+                     <div class="text-sm text-gray-300 font-mono">{{ user.email }}</div>
+                     <button class="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-500" @click="openAuthModal(user, 'new')">授权</button>
+                </div>
+             </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div v-if="authModalUser" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm" @click.self="authModalUser = null">
+      <div class="bg-gray-900 border border-green-500/30 p-8 rounded-2xl w-full max-w-sm shadow-2xl">
+        <h3 class="text-xl text-green-400 font-bold mb-6">{{ authModalMode === 'new' ? '授权用户' : '续期授权' }}</h3>
+        <p class="text-gray-300 font-mono mb-6 border-b border-gray-800 pb-4">{{ authModalUser.email }}</p>
+        
+        <div class="space-y-4 mb-8">
+          <label class="flex items-center gap-3 text-gray-300 cursor-pointer">
+            <input type="radio" v-model="authType" value="permanent" class="accent-green-500 w-5 h-5" />
+            永久授权
+          </label>
+          <label class="flex items-center gap-3 text-gray-300 cursor-pointer">
+            <input type="radio" v-model="authType" value="timed" class="accent-green-500 w-5 h-5" />
+            限时授权
+          </label>
+        </div>
+        
+        <div v-if="authType === 'timed'" class="mb-8 space-y-3">
+          <input type="date" v-model="authExpiryDate" :min="minExpiryDate" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white outline-none focus:border-green-500" />
+          <div class="flex gap-2">
+            <button class="flex-1 bg-gray-800 text-xs py-2 rounded text-gray-400 hover:text-white" @click="setQuickExpiry(30)">+30天</button>
+            <button class="flex-1 bg-gray-800 text-xs py-2 rounded text-gray-400 hover:text-white" @click="setQuickExpiry(180)">+180天</button>
+            <button class="flex-1 bg-gray-800 text-xs py-2 rounded text-gray-400 hover:text-white" @click="setQuickExpiry(365)">+1年</button>
+          </div>
+        </div>
+        
+        <div class="flex gap-3">
+          <button class="flex-1 py-3 border border-gray-600 text-gray-400 rounded-xl hover:bg-gray-800" @click="authModalUser = null">取消</button>
+          <button class="flex-1 py-3 bg-green-600 text-white rounded-xl hover:bg-green-500 font-bold disabled:opacity-50" @click="confirmAuthorization" :disabled="authType === 'timed' && !authExpiryDate">
+            确认
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
