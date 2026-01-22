@@ -271,9 +271,22 @@ export async function uploadFileToR2(file: File): Promise<Attachment | null> {
 
 // ==================== SUPABASE ACTIONS ====================
 
+const isInitialized = ref(false)
+
+export function resetStore() {
+    isInitialized.value = false
+    ledgers.value = []
+    categories.value = []
+    transactions.value = []
+    isLoading.value = false
+    error.value = null
+}
+
 // Initialize Data
-export async function fetchInitialData() {
+export async function fetchInitialData(force = false) {
     if (isLoading.value) return
+    if (isInitialized.value && !force) return // Cache hit
+
     isLoading.value = true
     error.value = null
 
@@ -317,6 +330,8 @@ export async function fetchInitialData() {
 
         if (transactionsError) throw transactionsError
         transactions.value = transactionsData || []
+
+        isInitialized.value = true // Mark as initialized
 
     } catch (e: any) {
         console.error('Failed to fetch data:', e)

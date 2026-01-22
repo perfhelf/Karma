@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Menu } from 'lucide-vue-next'
 import Sidebar from './components/Sidebar.vue'
-import { fetchInitialData } from './stores/data'
+import { fetchInitialData, resetStore } from './stores/data'
 import { supabase } from './lib/supabase'
 import { useTheme } from './composables/useTheme'
 
@@ -20,6 +20,7 @@ onMounted(async () => {
     // Listen for auth changes
     supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_OUT') {
+        resetStore()
         router.push('/login')
       } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         if (route.path === '/login') {

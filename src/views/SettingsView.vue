@@ -3,6 +3,10 @@ import { ref, onMounted, computed } from 'vue'
 import { Save, RefreshCw, Trash2 } from 'lucide-vue-next'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'vue-router'
+import { resetStore } from '../stores/data'
+
+// ... existing code ...
+
 
 const router = useRouter()
 const isSaving = ref(false)
@@ -114,6 +118,8 @@ async function handleDeleteAllData() {
     await supabase.from('user_settings').delete().eq('user_id', user.id)
     
     console.log('[Cleaning Algorithm] DB Cleaned.')
+
+    resetStore() // Clear local state
 
     // [MODIFIED LOGIC]
     if (isAdmin.value) {
