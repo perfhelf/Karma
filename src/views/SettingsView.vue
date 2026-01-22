@@ -253,6 +253,16 @@ async function loadUsers() {
             headers: { 'Authorization': `Bearer ${session?.access_token}` }
         })
         const data = await res.json()
+
+        if (!res.ok || data.error) {
+            console.error('❌ Admin API Error:', data)
+            alert(`请求被拒绝 (Code ${res.status}):\n` +
+                  `Error: ${data.error}\n` +
+                  `Seen Email: ${data.seen_email || 'macaroon'}\n` + 
+                  `Auth Error: ${data.error_msg || 'None'}`)
+            return
+        }
+
         users.value = data.users || []
         
         // Load Authorized Status
