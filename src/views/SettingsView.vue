@@ -242,10 +242,13 @@ async function loadUsers() {
     // if (!isAdmin.value) return 
     loadingUsers.value = true
     try {
-        // DEBUG: Check Environment
-        fetch('/api/debug-auth').then(r => r.json()).then(d => console.log('🔍 Auth Debug:', d))
-
         const { data: { session } } = await supabase.auth.getSession()
+        
+        // DEBUG: Check Environment WITH Token
+        fetch('/api/debug-auth', {
+            headers: { 'Authorization': `Bearer ${session?.access_token}` }
+        }).then(r => r.json()).then(d => console.log('🔍 Auth Debug:', d))
+
         const res = await fetch('/api/admin-users', {
             headers: { 'Authorization': `Bearer ${session?.access_token}` }
         })
