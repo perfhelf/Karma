@@ -229,15 +229,7 @@ async function handleDeleteTransaction(id: string) {
       @close="selectedTransaction = null"
       @delete="handleDeleteTransaction"
     />
-    </div>
 
-    <!-- Detail Modal -->
-    <TransactionDetailModal 
-      :transaction="selectedTransaction"
-      :is-open="!!selectedTransaction"
-      @close="selectedTransaction = null"
-      @delete="handleDeleteTransaction"
-    />
   </div>
 </template>
 
