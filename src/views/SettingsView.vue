@@ -194,7 +194,7 @@ async function confirmAuthorization() {
     // BUT we should verify RLS policies. update_auth_schema.sql allows Perfhelf to write.
     
     if (authModalMode.value === 'new') {
-      const { error } = await supabase.from('authorized_users').insert({ user_id: authModalUser.value.id, expires_at: expiresAt })
+      const { error } = await supabase.from('karma_authorized_users').insert({ user_id: authModalUser.value.id, expires_at: expiresAt })
       if (error) throw error
     } else {
       const { error } = await supabase.from('authorized_users').update({ expires_at: expiresAt }).eq('user_id', authModalUser.value.id)
@@ -257,7 +257,7 @@ async function loadUsers() {
         users.value = data.users || []
         
         // Load Authorized Status
-        const { data: authData } = await supabase.from('authorized_users').select('user_id, expires_at')
+        const { data: authData } = await supabase.from('karma_authorized_users').select('user_id, expires_at')
         if (authData) {
             authData.forEach((r: any) => authorizedUsersMap.value.set(r.user_id, r.expires_at))
         }

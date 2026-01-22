@@ -42,7 +42,7 @@ async function handleLogin() {
 
       // Check authorization status
       const { data: authRecord } = await supabase
-        .from('authorized_users')
+        .from('karma_authorized_users')
         .select('expires_at')
         .eq('user_id', data.user.id)
         .single()

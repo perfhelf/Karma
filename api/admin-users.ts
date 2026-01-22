@@ -158,7 +158,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 // KARMA VERSION: Uses Karma table names
 async function cleanupUserData(userId: string) {
     // 1. Remove from authorized_users
-    await supabaseAdmin.from('authorized_users').delete().eq('user_id', userId);
+    await supabaseAdmin.from('karma_authorized_users').delete().eq('user_id', userId);
 
     // 2. Identify and Delete images from R2
     const { data: transactions } = await supabaseAdmin
