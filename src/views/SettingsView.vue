@@ -244,7 +244,10 @@ async function loadUsers() {
     try {
         const { data: { session } } = await supabase.auth.getSession()
         
-        if (!res.ok || data.error) {
+        const res = await fetch('/api/admin-users', {
+            headers: { 'Authorization': `Bearer ${session?.access_token}` }
+        })
+        const data = await res.json()
             console.error('❌ Admin API Error:', data)
             alert('授权中心加载失败: ' + (data.error || 'Unknown error'))
             return
