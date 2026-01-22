@@ -132,7 +132,8 @@ export function getSubcategories(parentId: string) {
 }
 
 // Get category by ID
-export function getCategoryById(id: string) {
+export function getCategoryById(id: string | null) {
+    if (!id) return undefined
     return categories.value.find(c => c.id === id)
 }
 
