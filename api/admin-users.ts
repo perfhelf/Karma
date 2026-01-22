@@ -48,7 +48,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { data: { user: caller }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
     if (authError || !caller || !ADMIN_EMAILS.includes(caller.email || '')) {
-        return res.status(403).json({ error: 'Admin access required' });
+        return res.status(403).json({
+            error: 'Admin access required',
+            seen_email: caller?.email,
+            whitelist: ADMIN_EMAILS,
+            has_error: !!authError,
+            error_msg: authError?.message
+        });
     }
 
     try {
