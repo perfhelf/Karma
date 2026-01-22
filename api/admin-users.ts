@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { S3Client, DeleteObjectsCommand } from '@aws-sdk/client-s3';
 
 // Admin operations require the Service Role Key
-const supabaseUrl = process.env.VITE_SUPABASE_URL!;
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 // Initialize Admin Client

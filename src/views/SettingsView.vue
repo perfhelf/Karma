@@ -257,8 +257,9 @@ onMounted(async () => {
                 if (authData) {
                     authData.forEach((r: any) => authorizedUsersMap.value.set(r.user_id, r.expires_at))
                 }
-            } catch (e) {
+            } catch (e: any) {
                 console.error('Admin Load Failed', e)
+                alert('授权中心加载失败: ' + e.message)
             } finally {
                 loadingUsers.value = false
             }
