@@ -233,27 +233,3 @@ async function handleDeleteTransaction(id: string) {
 
 </template>
 
-<script setup lang="ts">
-// ... existing imports ...
-import TransactionDetailModal from '../components/TransactionDetailModal.vue'
-import { 
-  transactions, 
-  // ... other imports
-  deleteTransaction // Make sure to import this
-} from '../stores/data'
-
-// ... existing state ...
-const selectedTransaction = ref<any>(null)
-
-async function handleDeleteTransaction(id: string) {
-  try {
-    await deleteTransaction(id)
-    selectedTransaction.value = null
-  } catch (e: any) {
-    console.error(e)
-    alert('删除失败: ' + e.message)
-  }
-}
-
-// ... existing computed ...
-</script>
