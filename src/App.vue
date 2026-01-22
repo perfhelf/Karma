@@ -113,9 +113,7 @@ async function updateHeartbeat(userId: string) {
       <div :class="['flex-1 overflow-auto', route.name === 'Login' ? 'flex items-center justify-center' : 'p-4 lg:p-8']">
         <div :class="route.name !== 'Login' ? 'container mx-auto max-w-7xl' : 'w-full h-full'">
           <router-view v-slot="{ Component }">
-            <transition name="fade" mode="out-in">
-              <component :is="Component" />
-            </transition>
+            <component :is="Component" />
           </router-view>
         </div>
       </div>

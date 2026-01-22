@@ -30,7 +30,7 @@ const filteredTransactions = computed(() => {
     const query = searchQuery.value.toLowerCase()
     result = result.filter(t => 
       t.description.toLowerCase().includes(query) ||
-      getCategoryById(t.category_id)?.name.toLowerCase().includes(query)
+      (getCategoryById(t.category_id)?.name || '').toLowerCase().includes(query)
     )
   }
   
