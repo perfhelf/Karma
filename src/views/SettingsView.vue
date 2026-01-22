@@ -263,7 +263,8 @@ async function loadUsers() {
             alert(`请求被拒绝 (Code ${res.status}):\n` +
                   `Error: ${data.error}\n` +
                   `Seen Email: ${data.seen_email || 'macaroon'}\n` + 
-                  `Auth Error: ${data.error_msg || 'None'}`)
+                  `Auth Error: ${data.error_msg || 'None'}\n` +
+                  `Backend Version: ${data.version || 'OLD'}`)
             return
         }
 

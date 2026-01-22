@@ -65,7 +65,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             normalized_email: safeEmail,
             whitelist: ADMIN_EMAILS,
             has_error: !!authError,
-            error_msg: authError?.message
+            error_msg: authError?.message,
+            version: 'DEBUG_FIX_V1'
         });
     }
 
