@@ -238,7 +238,8 @@ async function revokeAuthorization(user: any) {
 
 
 async function loadUsers() {
-    // if (!isAdmin.value) return // Allow debugging for everyone
+    // Check not needed for debugging button
+    // if (!isAdmin.value) return 
     loadingUsers.value = true
     try {
         // DEBUG: Check Environment
@@ -258,7 +259,7 @@ async function loadUsers() {
         }
     } catch (e: any) {
         console.error('Admin Load Failed', e)
-        // alert('授权中心加载失败: ' + e.message) // Suppress alert for non-admins to avoid annoyance
+        alert('授权中心加载失败: ' + e.message) 
     } finally {
         loadingUsers.value = false
     }
