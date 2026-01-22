@@ -197,7 +197,7 @@ async function confirmAuthorization() {
       const { error } = await supabase.from('karma_authorized_users').insert({ user_id: authModalUser.value.id, expires_at: expiresAt })
       if (error) throw error
     } else {
-      const { error } = await supabase.from('authorized_users').update({ expires_at: expiresAt }).eq('user_id', authModalUser.value.id)
+      const { error } = await supabase.from('karma_authorized_users').update({ expires_at: expiresAt }).eq('user_id', authModalUser.value.id)
       if (error) throw error
     }
 
