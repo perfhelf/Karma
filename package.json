@@ -10,8 +10,9 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.972.0",
-    "@supabase/supabase-js": "^2.91.0",
+    "@supabase/supabase-js": "^2.87.1",
     "@tailwindcss/postcss": "^4.1.18",
+    "@vercel/node": "^5.5.15",
     "@vueuse/core": "^14.1.0",
     "autoprefixer": "^10.4.23",
     "axios": "^1.13.2",
@@ -26,7 +27,6 @@
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
-    "@vercel/node": "^5.5.26",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/tsconfig": "^0.8.1",
     "typescript": "~5.9.3",
