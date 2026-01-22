@@ -248,6 +248,7 @@ async function loadUsers() {
             headers: { 'Authorization': `Bearer ${session?.access_token}` }
         })
         const data = await res.json()
+        if (!res.ok || data.error) {
             console.error('❌ Admin API Error:', data)
             alert('授权中心加载失败: ' + (data.error || 'Unknown error'))
             return
