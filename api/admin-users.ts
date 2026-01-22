@@ -3,10 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 import { S3Client, DeleteObjectsCommand } from '@aws-sdk/client-s3';
 
 // Admin operations require the Service Role Key
-const supabaseUrl = (process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
-const supabaseServiceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+const supabaseUrl = process.env.VITE_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-// Initialize Admin Client
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
     auth: { autoRefreshToken: false, persistSession: false }
 });
@@ -31,7 +30,6 @@ const s3Client = new S3Client({
 const ADMIN_EMAILS = ['perfhelf@gmail.com'];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -54,7 +52,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        // GET - List all users
+        // GET - List all users (paginated to bypass 1000 limit)
         if (req.method === 'GET') {
             const allUsers: any[] = [];
             let page = 1;
@@ -80,6 +78,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).json({ users: allUsers });
         }
 
+        // POST - Create new user
+        if (req.method === 'POST') {
+            const { email, password } = req.body;
+            if (!email || !password) {
+                return res.status(400).json({ error: 'Email and password required' });
+            }
+
+            const { data, error } = await supabaseAdmin.auth.admin.createUser({
+                email,
+                password,
+                email_confirm: true // Skip email confirmation
+            });
+
+            if (error) throw error;
+            return res.status(201).json({ user: data.user });
+        }
+
         // PUT - Update user
         if (req.method === 'PUT') {
             const { userId, email, password } = req.body;
@@ -94,6 +109,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const { data, error } = await supabaseAdmin.auth.admin.updateUserById(userId, updateData);
             if (error) throw error;
             return res.status(200).json({ user: data.user });
+        }
+
+        // DELETE - Delete user (Cascading delete not recommended, usually use Revoke)
+        // Checks if user has trades and cleans them up too
+        if (req.method === 'DELETE') {
+            const { userId } = req.body;
+            if (!userId) {
+                return res.status(400).json({ error: 'User ID required' });
+            }
+
+            // Reuse the cleanup logic from Revoke
+            await cleanupUserData(userId);
+
+            // Then delete the user
+            const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+            if (error) throw error;
+
+            return res.status(200).json({ success: true });
         }
 
         // PATCH - Revoke authorization (delete user data but keep account)
@@ -116,16 +149,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 // Helper: Clean up all user data (DB + R2)
+// KARMA VERSION: Uses Karma table names
 async function cleanupUserData(userId: string) {
     // 1. Remove from authorized_users
     await supabaseAdmin.from('authorized_users').delete().eq('user_id', userId);
 
-    // 2. Delete DB Records (Karma Specific)
-    // Cascading deletions are often cleaner if set in SQL, but explicit delete is safer.
-    // Transactions, Ledgers, Categories, UserSettings
-
-    // R2 Deletion logic for Karma transactions
-    // Fetch transactions with attachments
+    // 2. Identify and Delete images from R2
     const { data: transactions } = await supabaseAdmin
         .from('transactions')
         .select('attachments')
@@ -134,15 +163,18 @@ async function cleanupUserData(userId: string) {
     if (transactions && transactions.length > 0) {
         const keysToDelete: { Key: string }[] = [];
 
-        transactions.forEach(t => {
+        for (const t of transactions) {
             if (Array.isArray(t.attachments)) {
-                t.attachments.forEach((att: any) => {
-                    if (att.key) keysToDelete.push({ Key: att.key });
-                });
+                for (const att of t.attachments) {
+                    if (att.key) {
+                        keysToDelete.push({ Key: att.key });
+                    }
+                }
             }
-        });
+        }
 
         if (keysToDelete.length > 0) {
+            console.log(`Deleting ${keysToDelete.length} attachments from R2 for user ${userId}`);
             const chunkSize = 1000;
             for (let i = 0; i < keysToDelete.length; i += chunkSize) {
                 const chunk = keysToDelete.slice(i, i + chunkSize);
@@ -158,7 +190,7 @@ async function cleanupUserData(userId: string) {
         }
     }
 
-    // Delete tables
+    // 3. Delete Karma tables
     await supabaseAdmin.from('transactions').delete().eq('user_id', userId);
     await supabaseAdmin.from('categories').delete().eq('user_id', userId);
     await supabaseAdmin.from('ledgers').delete().eq('user_id', userId);
