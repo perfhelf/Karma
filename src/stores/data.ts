@@ -147,7 +147,7 @@ export interface Attachment {
 export interface Transaction {
     id: string
     ledger_id: string | null  // null = 总账户
-    category_id: string
+    category_id: string | null // null = 未分类
     amount: number
     currency: string
     type: 'expense' | 'income'
@@ -187,6 +187,11 @@ export function getLedgerTransactionCount(ledgerId: string | null) {
 export function getExpenseByCategory(txns: Transaction[]) {
     const result: Record<string, number> = {}
     txns.filter(t => t.type === 'expense').forEach(t => {
+        if (!t.category_id) {
+            const groupName = '未分类'
+            result[groupName] = (result[groupName] || 0) + t.amount
+            return
+        }
         const cat = getCategoryById(t.category_id)
         if (!cat) return
         let groupName = cat.name

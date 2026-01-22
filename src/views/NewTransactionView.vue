@@ -117,8 +117,8 @@ watch(() => form.value.categoryId, () => {
 })
 
 async function handleSubmit() {
-  if (!form.value.amount || !form.value.categoryId) {
-    alert('请填写金额和分类')
+  if (!form.value.amount) {
+    alert('请填写金额')
     return
   }
 
@@ -129,7 +129,7 @@ async function handleSubmit() {
       .map(s => s.file)
       .filter((f): f is File => f !== null)
 
-    const finalCategoryId = form.value.subcategoryId || form.value.categoryId
+    const finalCategoryId = form.value.subcategoryId || form.value.categoryId || null
 
     await addTransaction({
       ledger_id: form.value.ledgerId || null,
