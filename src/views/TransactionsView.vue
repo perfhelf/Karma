@@ -106,7 +106,7 @@ const filteredTransactions = computed(() => {
           >
             <option value="">全部账本</option>
             <option value="total">总账户</option>
-            <option v-for="ledger in ledgers" :key="ledger.id" :value="ledger.id">
+            <option v-for="ledger in ledgers.filter(l => !l.is_archived)" :key="ledger.id" :value="ledger.id">
               {{ ledger.icon }} {{ ledger.name }}
             </option>
           </select>

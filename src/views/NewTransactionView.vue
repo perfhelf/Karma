@@ -215,7 +215,7 @@ async function handleSubmit() {
         <div class="relative">
           <select v-model="form.ledgerId" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white appearance-none cursor-pointer outline-none">
             <option value="">总账户 (默认)</option>
-            <option v-for="ledger in ledgers" :key="ledger.id" :value="ledger.id">{{ ledger.icon || '📒' }} {{ ledger.name }}</option>
+            <option v-for="ledger in ledgers.filter(l => !l.is_archived)" :key="ledger.id" :value="ledger.id">{{ ledger.icon || '📒' }} {{ ledger.name }}</option>
           </select>
           <ChevronDown :size="16" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
