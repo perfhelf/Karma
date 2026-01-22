@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import { Plus, Edit2, Trash2, ChevronRight, FolderTree } from 'lucide-vue-next'
 import { 
-  categories, 
   parentCategories, 
   getSubcategories, 
   emojiCategories,
