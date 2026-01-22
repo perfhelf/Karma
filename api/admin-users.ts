@@ -1,15 +1,13 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 import { S3Client, DeleteObjectsCommand } from '@aws-sdk/client-s3';
-import fetch from 'node-fetch';
 
 // Admin operations require the Service Role Key
 const supabaseUrl = process.env.VITE_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
-    global: { fetch: fetch as any }
+    auth: { autoRefreshToken: false, persistSession: false }
 });
 
 // R2 Config
