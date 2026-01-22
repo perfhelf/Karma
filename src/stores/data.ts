@@ -542,4 +542,68 @@ export async function deleteTransaction(id: string) {
 }
 
 // ---- Category Actions ----
-// (Implemented as needed, currently UI mainly reads categories)
+// Implemented properly now
+export async function addCategory(category: Omit<Category, 'id'>) {
+    if (isDemoMode.value) {
+        const newCat = { ...category, id: `mock-cat-${Date.now()}` }
+        categories.value.push(newCat)
+        return newCat
+    }
+
+    const { data: { user } } = await supabase.auth.getUser()
+
+    const { data, error } = await supabase
+        .from('categories')
+        .insert([{
+            ...category,
+            user_id: user?.id
+        }])
+        .select()
+        .single()
+
+    if (error) throw error
+    if (data) categories.value.push(data)
+    return data
+}
+
+export async function updateCategory(id: string, updates: Partial<Category>) {
+    if (isDemoMode.value) {
+        const idx = categories.value.findIndex(c => c.id === id)
+        if (idx !== -1) {
+            categories.value[idx] = { ...categories.value[idx], ...updates } as Category
+            return categories.value[idx]
+        }
+        return null
+    }
+
+    const { data, error } = await supabase
+        .from('categories')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single()
+
+    if (error) throw error
+    if (data) {
+        const idx = categories.value.findIndex(c => c.id === id)
+        if (idx !== -1) categories.value[idx] = data
+    }
+    return data
+}
+
+export async function deleteCategory(id: string) {
+    if (isDemoMode.value) {
+        categories.value = categories.value.filter(c => c.id !== id)
+        // Also remove subs? Or UI handles it logic?
+        // Simple filter for now.
+        return
+    }
+
+    const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', id)
+
+    if (error) throw error
+    categories.value = categories.value.filter(c => c.id !== id)
+}

@@ -1,12 +1,21 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Plus, Edit2, Trash2, ChevronRight, FolderTree } from 'lucide-vue-next'
-import { categories, parentCategories, getSubcategories, emojiCategories } from '../stores/data'
+import { 
+  categories, 
+  parentCategories, 
+  getSubcategories, 
+  emojiCategories,
+  addCategory,
+  updateCategory,
+  deleteCategory as deleteCategoryAction
+} from '../stores/data'
 
 const showAddModal = ref(false)
 const editingCategory = ref<any>(null)
 const newCategory = ref({ name: '', icon: '📁', parent_id: null as string | null })
 const activeCategory = ref(emojiCategories[0]?.name || '')
+const isSubmitting = ref(false)
 
 // Expand state for parent categories
 const expandedCategories = ref<Set<string>>(new Set())
@@ -33,41 +42,50 @@ function openEditModal(cat: any) {
   showAddModal.value = true
 }
 
-function saveCategory() {
+async function saveCategory() {
   if (!newCategory.value.name.trim()) {
     alert('请输入分类名称')
     return
   }
 
-  if (editingCategory.value) {
-    // Updating existing category
-    const idx = categories.value.findIndex(c => c.id === editingCategory.value.id)
-    if (idx !== -1) {
-      const existing = categories.value[idx]!
-      // Merge newCategory.value properties into the existing category, ensuring ID is preserved
-      categories.value[idx] = { ...existing, ...newCategory.value, id: existing.id } as any
+  isSubmitting.value = true
+  try {
+    if (editingCategory.value) {
+      await updateCategory(editingCategory.value.id, {
+        name: newCategory.value.name,
+        icon: newCategory.value.icon,
+        parent_id: newCategory.value.parent_id
+      })
+    } else {
+      await addCategory({
+        name: newCategory.value.name,
+        icon: newCategory.value.icon,
+        parent_id: newCategory.value.parent_id
+      })
     }
-  } else {
-    // Adding new category
-    categories.value.push({
-      id: String(Date.now()),
-      name: newCategory.value.name,
-      icon: newCategory.value.icon,
-      parent_id: newCategory.value.parent_id,
-    })
+    showAddModal.value = false
+  } catch (e: any) {
+    console.error(e)
+    alert('保存失败: ' + e.message)
+  } finally {
+    isSubmitting.value = false
   }
-
-  showAddModal.value = false
 }
 
-function deleteCategory(cat: any) {
+async function deleteCategory(cat: any) {
   const subs = getSubcategories(cat.id)
   if (subs.length > 0) {
     alert('请先删除该分类下的子分类')
     return
   }
   if (!confirm(`确定要删除"${cat.name}"吗？`)) return
-  categories.value = categories.value.filter(c => c.id !== cat.id)
+  
+  try {
+    await deleteCategoryAction(cat.id)
+  } catch (e: any) {
+    console.error(e)
+    alert('删除失败: ' + e.message)
+  }
 }
 </script>
 
@@ -199,7 +217,9 @@ function deleteCategory(cat: any) {
           
           <div class="flex gap-3 mt-6">
             <button @click="showAddModal = false" class="flex-1 py-3 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-xl hover:bg-gray-200 transition-all">取消</button>
-            <button @click="saveCategory" class="flex-1 py-3 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all">保存</button>
+            <button @click="saveCategory" :disabled="isSubmitting" class="flex-1 py-3 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all disabled:opacity-50">
+              {{ isSubmitting ? '保存中...' : '保存' }}
+            </button>
           </div>
         </div>
       </div>
