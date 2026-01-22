@@ -44,7 +44,7 @@ const filteredTransactions = computed(() => {
     const category = getCategoryById(selectedCategory.value)
     if (category && category.parent_id === null) {
       const subIds = getSubcategories(category.id).map(c => c.id)
-      result = result.filter(t => t.category_id === selectedCategory.value || subIds.includes(t.category_id))
+      result = result.filter(t => t.category_id === selectedCategory.value || (t.category_id && subIds.includes(t.category_id)))
     } else {
       // Exact match for subcategory or parent info
       result = result.filter(t => t.category_id === selectedCategory.value)
