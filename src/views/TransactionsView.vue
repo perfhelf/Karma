@@ -8,8 +8,11 @@ import {
   getSubcategories,
   getCategoryById,
   getLedgerById,
+
+  deleteTransaction,
   formatCurrency 
 } from '../stores/data'
+import TransactionDetailModal from '../components/TransactionDetailModal.vue'
 
 const searchQuery = ref('')
 const dateRange = ref({ start: '', end: '' })
@@ -67,6 +70,18 @@ const filteredTransactions = computed(() => {
   
   return result.slice(0, 100)
 })
+
+const selectedTransaction = ref<any>(null)
+
+async function handleDeleteTransaction(id: string) {
+  try {
+    await deleteTransaction(id)
+    selectedTransaction.value = null
+  } catch (e: any) {
+    console.error(e)
+    alert('删除失败: ' + e.message)
+  }
+}
 </script>
 
 <template>
@@ -185,7 +200,7 @@ const filteredTransactions = computed(() => {
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
-            <tr v-for="txn in filteredTransactions" :key="txn.id" class="hover:bg-gray-50 dark:hover:bg-slate-700/50">
+            <tr v-for="txn in filteredTransactions" :key="txn.id" class="hover:bg-gray-50 dark:hover:bg-slate-700/50 cursor-pointer" @click="selectedTransaction = txn">
               <td class="px-4 py-3 text-sm text-gray-700 dark:text-slate-300">{{ txn.transaction_date }}</td>
               <td class="px-4 py-3 text-sm">
                 <span class="flex items-center gap-2">
@@ -206,4 +221,47 @@ const filteredTransactions = computed(() => {
       </div>
     </div>
   </div>
+
+    <!-- Detail Modal -->
+    <TransactionDetailModal 
+      :transaction="selectedTransaction"
+      :is-open="!!selectedTransaction"
+      @close="selectedTransaction = null"
+      @delete="handleDeleteTransaction"
+    />
+    </div>
+
+    <!-- Detail Modal -->
+    <TransactionDetailModal 
+      :transaction="selectedTransaction"
+      :is-open="!!selectedTransaction"
+      @close="selectedTransaction = null"
+      @delete="handleDeleteTransaction"
+    />
+  </div>
 </template>
+
+<script setup lang="ts">
+// ... existing imports ...
+import TransactionDetailModal from '../components/TransactionDetailModal.vue'
+import { 
+  transactions, 
+  // ... other imports
+  deleteTransaction // Make sure to import this
+} from '../stores/data'
+
+// ... existing state ...
+const selectedTransaction = ref<any>(null)
+
+async function handleDeleteTransaction(id: string) {
+  try {
+    await deleteTransaction(id)
+    selectedTransaction.value = null
+  } catch (e: any) {
+    console.error(e)
+    alert('删除失败: ' + e.message)
+  }
+}
+
+// ... existing computed ...
+</script>
