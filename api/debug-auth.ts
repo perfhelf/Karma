@@ -18,6 +18,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const supabaseUrl = (process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
     const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 
+    // Reveal partial values for debugging (safe: only shows structure, not full secret)
+    const urlPreview = supabaseUrl ? supabaseUrl.substring(0, 30) + '...' : 'EMPTY';
+    const keyPreview = supabaseKey ? supabaseKey.substring(0, 20) + '...[' + supabaseKey.length + ' chars]' : 'EMPTY';
+
     let userTest = null;
     let error = null;
 
@@ -36,8 +40,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(200).json({
         env: envVars,
-        url_used: supabaseUrl ? 'Found' : 'Missing',
-        key_used: supabaseKey ? 'Found' : 'Missing',
+        url_preview: urlPreview,
+        key_preview: keyPreview,
         test_result: userTest,
         error: error
     });
