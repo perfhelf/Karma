@@ -96,9 +96,11 @@ async function setDefault(ledger: any) {
 }
 
 async function deleteLedger(ledger: any) {
+  console.log('[UI] Delete ledger clicked:', ledger.id, ledger.name)
   if (!confirm(`确定要彻底删除"${ledger.name}"吗？这将无法恢复。`)) return
   
   try {
+    console.log('[UI] Calling deleteLedgerAction...')
     await deleteLedgerAction(ledger.id)
   } catch (e) {
     console.error(e)
@@ -220,7 +222,7 @@ async function restoreLedger(ledger: any) {
                   <Edit2 :size="16" />
                 </button>
             </template>
-            <button @click="deleteLedger(ledger)" class="p-2 text-gray-400 hover:text-red-500" title="删除">
+            <button @click.stop.prevent="deleteLedger(ledger)" class="p-2 text-gray-400 hover:text-red-500" title="删除">
               <Trash2 :size="16" />
             </button>
           </div>

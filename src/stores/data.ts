@@ -394,13 +394,17 @@ export async function updateLedger(id: string, updates: Partial<Ledger>) {
 }
 
 export async function deleteLedger(id: string) {
+    console.log('[Store] deleteLedger called for id:', id)
+
     if (isDemoMode.value) {
+        console.log('[Store] Demo mode delete')
         ledgers.value = ledgers.value.filter(l => l.id !== id)
         transactions.value = transactions.value.filter(t => t.ledger_id !== id)
         return
     }
 
     try {
+        console.log('[Store] Starting Clean Deletion Flow...')
         // [Clean Algorithm] Step 1: Find all transactions for this ledger
         const { data: ledgerTxns, error: fetchError } = await supabase
             .from('transactions')
