@@ -6,6 +6,9 @@
     <b>The Ledger of Destiny. / 掌控财富命运的记账系统。</b>
   </p>
   <p>
+    <b>English</b> | <a href="README_CN.md">简体中文</a>
+  </p>
+  <p>
     <a href="https://vuejs.org/"><img src="https://img.shields.io/badge/Vue-3.x-4FC08D?style=flat-square&logo=vue.js" alt="Vue 3" /></a>
     <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript" alt="TypeScript" /></a>
     <a href="https://supabase.com/"><img src="https://img.shields.io/badge/Supabase-Database-3ECF8E?style=flat-square&logo=supabase" alt="Supabase" /></a>
