@@ -235,8 +235,7 @@ async function revokeAuthorization(user: any) {
     }
 }
 
-    }
-}
+
 
 async function loadUsers() {
     if (!isAdmin.value) return
