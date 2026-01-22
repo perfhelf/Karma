@@ -1,0 +1,44 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { createClient } from '@supabase/supabase-js';
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+    // Enable CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+
+    if (req.method === 'OPTIONS') return res.status(200).end();
+
+    const envVars = {
+        VITE_SUPABASE_URL: !!process.env.VITE_SUPABASE_URL,
+        NEXT_PUBLIC_SUPABASE_URL: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        SUPABASE_URL: !!process.env.SUPABASE_URL,
+        SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+    };
+
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    let userTest = null;
+    let error = null;
+
+    if (supabaseUrl && supabaseKey) {
+        try {
+            const supabase = createClient(supabaseUrl, supabaseKey, {
+                auth: { autoRefreshToken: false, persistSession: false }
+            });
+            const { data, error: err } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1 });
+            if (err) error = err;
+            userTest = data;
+        } catch (e: any) {
+            error = e.message;
+        }
+    }
+
+    return res.status(200).json({
+        env: envVars,
+        url_used: supabaseUrl ? 'Found' : 'Missing',
+        key_used: supabaseKey ? 'Found' : 'Missing',
+        test_result: userTest,
+        error: error
+    });
+}
