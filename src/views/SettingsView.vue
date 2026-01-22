@@ -238,7 +238,7 @@ async function revokeAuthorization(user: any) {
 
 
 async function loadUsers() {
-    if (!isAdmin.value) return
+    // if (!isAdmin.value) return // Allow debugging for everyone
     loadingUsers.value = true
     try {
         // DEBUG: Check Environment
@@ -258,7 +258,7 @@ async function loadUsers() {
         }
     } catch (e: any) {
         console.error('Admin Load Failed', e)
-        alert('授权中心加载失败: ' + e.message)
+        // alert('授权中心加载失败: ' + e.message) // Suppress alert for non-admins to avoid annoyance
     } finally {
         loadingUsers.value = false
     }
@@ -274,7 +274,7 @@ onMounted(async () => {
             loadUsers()
         }
 
-        const { data } = await supabase.from('user_settings').select('*').eq('user_id', user.id).single()
+        const { data } = await supabase.from('user_settings').select('*').eq('user_id', user.id).maybeSingle()
         if (data) {
             settings.value.baseCurrency = data.base_currency
         }
@@ -422,6 +422,22 @@ onMounted(async () => {
                 </div>
              </div>
         </div>
+    </div>
+
+    <!-- DEBUG ZONE (Visible to ALL for testing) -->
+    <div class="mt-12 p-6 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl opacity-75">
+        <h3 class="text-lg font-bold text-gray-500 mb-4">🔧 调试工具 (Debug Tools)</h3>
+        <div class="flex gap-4">
+             <button 
+                @click="loadUsers" 
+                :disabled="loadingUsers"
+                class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center gap-2"
+            >
+                <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': loadingUsers }" />
+                强制请求 Admin API (Check 403)
+            </button>
+        </div>
+        <p class="text-xs text-gray-400 mt-2">点击后请打开 F12 -> Network 查看 /api/admin-users 的响应详情。</p>
     </div>
 
     <!-- Auth Modal -->
