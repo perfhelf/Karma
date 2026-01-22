@@ -375,25 +375,66 @@ export async function updateLedger(id: string, updates: Partial<Ledger>) {
 export async function deleteLedger(id: string) {
     if (isDemoMode.value) {
         ledgers.value = ledgers.value.filter(l => l.id !== id)
-        transactions.value.forEach(t => {
-            if (t.ledger_id === id) t.ledger_id = null
-        })
+        transactions.value = transactions.value.filter(t => t.ledger_id !== id)
         return
     }
 
-    const { error } = await supabase
-        .from('ledgers')
-        .delete()
-        .eq('id', id)
+    try {
+        // [Clean Algorithm] Step 1: Find all transactions for this ledger
+        const { data: ledgerTxns, error: fetchError } = await supabase
+            .from('transactions')
+            .select('id, attachments')
+            .eq('ledger_id', id)
 
-    if (error) throw error
-    ledgers.value = ledgers.value.filter(l => l.id !== id)
-    // Transactions associated will be handled by DB constraints (ON DELETE SET NULL)
-    // but local state needs update?
-    // We should refresh transactions or manually update local
-    transactions.value.forEach(t => {
-        if (t.ledger_id === id) t.ledger_id = null
-    })
+        if (fetchError) throw fetchError
+
+        // [Clean Algorithm] Step 2: Delete R2 files and Transactions
+        if (ledgerTxns && ledgerTxns.length > 0) {
+            // 2a. Collect and delete all attachments
+            const allAttachments: Attachment[] = ledgerTxns.flatMap((t: any) => t.attachments || [])
+
+            if (allAttachments.length > 0) {
+                console.log(`[Clean Ledger] Deleting ${allAttachments.length} attachments from ${ledgerTxns.length} transactions`)
+
+                const deletePromises = allAttachments.map(att =>
+                    fetch('/api/r2-delete', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ key: att.key })
+                    })
+                        .then(res => res.ok ? console.log(`[R2] Deleted: ${att.key}`) : console.error(`[R2] Failed: ${att.key}`))
+                        .catch(e => console.error(`[R2] Error: ${att.key}`, e))
+                )
+
+                await Promise.allSettled(deletePromises)
+            }
+
+            // 2b. Delete transactions
+            const txIds = ledgerTxns.map(t => t.id)
+            const { error: txnDeleteError } = await supabase
+                .from('transactions')
+                .delete()
+                .in('id', txIds)
+
+            if (txnDeleteError) throw txnDeleteError
+        }
+
+        // [Clean Algorithm] Step 3: Delete Ledger
+        const { error } = await supabase
+            .from('ledgers')
+            .delete()
+            .eq('id', id)
+
+        if (error) throw error
+
+        // [Clean Algorithm] Step 4: Update Local State
+        ledgers.value = ledgers.value.filter(l => l.id !== id)
+        transactions.value = transactions.value.filter(t => t.ledger_id !== id)
+
+    } catch (e) {
+        console.error('Delete Ledger Failed:', e)
+        throw e
+    }
 }
 
 // ---- Transaction Actions ----
