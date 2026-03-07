@@ -8,7 +8,7 @@
  *
  * 宽限期: 7 天
  * 调度: cron-job.org 每周日 05:00 UTC
- * 安全: CRON_SECRET 鉴权
+ * 安全: 幂等操作 + 7天宽限期 (CRON_SECRET 可选)
  */
 
 import { S3Client, ListObjectsV2Command, DeleteObjectsCommand } from '@aws-sdk/client-s3'
@@ -31,9 +31,13 @@ const s3Client = new S3Client({
 const GRACE_PERIOD_MS = 7 * 24 * 60 * 60 * 1000
 
 export default async function handler(req: any, res: any) {
-    const secret = req.headers['x-cron-secret'] || req.query.secret
-    if (secret !== process.env.CRON_SECRET) {
-        return res.status(401).json({ error: 'Unauthorized' })
+    // CRON_SECRET 可选: 设置了则校验，未设置则放行 (幂等安全操作)
+    const cronSecret = process.env.CRON_SECRET
+    if (cronSecret) {
+        const secret = req.headers['x-cron-secret'] || req.query.secret
+        if (secret !== cronSecret) {
+            return res.status(401).json({ error: 'Unauthorized' })
+        }
     }
 
     const supabase = createClient(
