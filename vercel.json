@@ -1,4 +1,10 @@
 {
+    "crons": [
+        {
+            "path": "/api/cron/cleanup-orphan-images",
+            "schedule": "0 5 * * 0"
+        }
+    ],
     "rewrites": [
         {
             "source": "/((?!api/).*)",
