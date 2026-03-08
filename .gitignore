@@ -32,3 +32,4 @@ dist-ssr
 # Misc
 node_modules 2
 附件.md
+.env*.local
