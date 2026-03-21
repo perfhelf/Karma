@@ -65,3 +65,16 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #64748b;
 }
+
+/* Tailwind v4 Preflight 不再为 button 设置 cursor: pointer，需手动恢复 */
+@layer base {
+  button,
+  [type="button"],
+  [type="reset"],
+  [type="submit"],
+  [role="button"],
+  select,
+  summary {
+    cursor: pointer;
+  }
+}
