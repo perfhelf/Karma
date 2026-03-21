@@ -9,8 +9,10 @@
     <a href="README.md">English</a> | <b>简体中文</b>
   </p>
   <p>
-    <a href="https://vuejs.org/"><img src="https://img.shields.io/badge/Vue-3.x-4FC08D?style=flat-square&logo=vue.js" alt="Vue 3" /></a>
-    <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript" alt="TypeScript" /></a>
+    <a href="https://vuejs.org/"><img src="https://img.shields.io/badge/Vue-3.5-4FC08D?style=flat-square&logo=vue.js" alt="Vue 3" /></a>
+    <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript" alt="TypeScript" /></a>
+    <a href="https://vitejs.dev/"><img src="https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite" alt="Vite 8" /></a>
+    <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss" alt="Tailwind CSS v4" /></a>
     <a href="https://supabase.com/"><img src="https://img.shields.io/badge/Supabase-Database-3ECF8E?style=flat-square&logo=supabase" alt="Supabase" /></a>
     <a href="https://www.cloudflare.com/products/r2/"><img src="https://img.shields.io/badge/Cloudflare-R2_Storage-F38020?style=flat-square&logo=cloudflare" alt="Cloudflare R2" /></a>
     <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="License: MIT" /></a>
@@ -63,9 +65,10 @@
 
 本项目采用 2026 年现代 Web 开发的黄金标准构建：
 
-*   **前端核心**: [Vue 3](https://vuejs.org/) (Composition API) + [Vite](https://vitejs.dev/)
-*   **类型系统**: [TypeScript](https://www.typescriptlang.org/) (全链路类型安全)
-*   **视觉语言**: [TailwindCSS](https://tailwindcss.com/) (原子化设计)
+*   **前端核心**: [Vue 3.5](https://vuejs.org/) (Composition API) + [Vite 8](https://vitejs.dev/) (Rolldown 引擎)
+*   **类型系统**: [TypeScript 5.9](https://www.typescriptlang.org/) (全链路类型安全)
+*   **视觉语言**: [TailwindCSS v4](https://tailwindcss.com/) (原子化设计 + Vite 插件)
+*   **路由系统**: [Vue Router 5](https://router.vuejs.org/) (return 模式守卫)
 *   **后端即服务 (BaaS)**: [Supabase](https://supabase.com/)
 *   **对象存储**: [Cloudflare R2](https://www.cloudflare.com/products/r2/) (基于 AWS S3 SDK)
 *   **部署托管**: [Vercel](https://vercel.com/)
@@ -92,10 +95,12 @@ npm install
 ```env
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_key
+ADMIN_EMAIL=your_admin_email
 R2_ACCOUNT_ID=your_r2_id
 R2_ACCESS_KEY_ID=your_r2_key
 R2_SECRET_ACCESS_KEY=your_r2_secret
 R2_BUCKET_NAME=your_bucket_name
+R2_PUBLIC_DOMAIN=your_r2_domain
 ```
 
 ### 4. 启动观测站
