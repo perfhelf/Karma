@@ -264,7 +264,7 @@ const categoryChartOptions = computed(() => ({
         <div v-if="selectedPeriod !== 'year'" class="relative">
           <select
             v-model="selectedYear"
-            class="px-4 py-2 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-700 dark:text-slate-300 appearance-none cursor-pointer pr-10 outline-none"
+            class="px-4 py-2 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-700 dark:text-slate-300 appearance-none cursor-pointer pr-10 outline-hidden"
           >
             <option v-for="year in availableYears" :key="year" :value="year">{{ year }}年</option>
           </select>
@@ -280,7 +280,7 @@ const categoryChartOptions = computed(() => ({
             :class="[
               'px-4 py-2 rounded-lg text-sm font-medium transition-all',
               selectedPeriod === period.value
-                ? 'bg-white dark:bg-slate-600 text-primary-600 dark:text-primary-400 shadow-sm'
+                ? 'bg-white dark:bg-slate-600 text-primary-600 dark:text-primary-400 shadow-xs'
                 : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'
             ]"
           >
@@ -292,7 +292,7 @@ const categoryChartOptions = computed(() => ({
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xs border border-gray-100 dark:border-slate-700">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-500 dark:text-slate-400">总支出</p>
@@ -304,7 +304,7 @@ const categoryChartOptions = computed(() => ({
         </div>
       </div>
 
-      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xs border border-gray-100 dark:border-slate-700">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-500 dark:text-slate-400">总收入</p>
@@ -316,7 +316,7 @@ const categoryChartOptions = computed(() => ({
         </div>
       </div>
 
-      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xs border border-gray-100 dark:border-slate-700">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-500 dark:text-slate-400">结余</p>
@@ -332,22 +332,22 @@ const categoryChartOptions = computed(() => ({
     </div>
 
     <!-- Chart Section -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xs border border-gray-100 dark:border-slate-700">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white">收支趋势</h2>
         
         <div class="flex items-center gap-1 bg-gray-100 dark:bg-slate-700 p-1 rounded-xl">
           <button
             @click="selectedType = 'all'"
-            :class="['px-3 py-1.5 rounded-lg text-sm font-medium transition-all', selectedType === 'all' ? 'bg-white dark:bg-slate-600 text-gray-700 dark:text-white shadow-sm' : 'text-gray-500']"
+            :class="['px-3 py-1.5 rounded-lg text-sm font-medium transition-all', selectedType === 'all' ? 'bg-white dark:bg-slate-600 text-gray-700 dark:text-white shadow-xs' : 'text-gray-500']"
           >全部</button>
           <button
             @click="selectedType = 'expense'"
-            :class="['px-3 py-1.5 rounded-lg text-sm font-medium transition-all', selectedType === 'expense' ? 'bg-red-500 text-white shadow-sm' : 'text-gray-500']"
+            :class="['px-3 py-1.5 rounded-lg text-sm font-medium transition-all', selectedType === 'expense' ? 'bg-red-500 text-white shadow-xs' : 'text-gray-500']"
           >支出</button>
           <button
             @click="selectedType = 'income'"
-            :class="['px-3 py-1.5 rounded-lg text-sm font-medium transition-all', selectedType === 'income' ? 'bg-green-500 text-white shadow-sm' : 'text-gray-500']"
+            :class="['px-3 py-1.5 rounded-lg text-sm font-medium transition-all', selectedType === 'income' ? 'bg-green-500 text-white shadow-xs' : 'text-gray-500']"
           >收入</button>
         </div>
       </div>
@@ -357,7 +357,7 @@ const categoryChartOptions = computed(() => ({
 
     <!-- Category Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xs border border-gray-100 dark:border-slate-700">
         <div class="flex items-center gap-2 mb-4">
           <PieChart :size="20" class="text-gray-400" />
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white">支出分类</h2>
@@ -365,7 +365,7 @@ const categoryChartOptions = computed(() => ({
         <v-chart :option="categoryChartOptions" style="height: 280px" autoresize />
       </div>
 
-      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xs border border-gray-100 dark:border-slate-700">
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">分类明细</h2>
         <div class="space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
           <div

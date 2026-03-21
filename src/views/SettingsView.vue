@@ -327,7 +327,7 @@ onMounted(async () => {
     </div>
 
     <!-- Currency Settings -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xs border border-gray-100 dark:border-slate-700">
       <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">货币设置</h2>
       
       <div class="space-y-4">
@@ -335,7 +335,7 @@ onMounted(async () => {
           <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">默认结算币种</label>
           <select
             v-model="settings.baseCurrency"
-            class="w-full max-w-xs px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900 dark:text-white"
+            class="w-full max-w-xs px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-hidden text-gray-900 dark:text-white"
           >
             <option v-for="c in currencies" :key="c.code" :value="c.code">{{ c.name }}</option>
           </select>
@@ -354,7 +354,7 @@ onMounted(async () => {
     </div>
 
     <!-- Exchange Rates -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xs border border-gray-100 dark:border-slate-700">
       <div class="flex items-center justify-between mb-4">
         <div>
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white">汇率表</h2>
@@ -387,7 +387,7 @@ onMounted(async () => {
     </div>
 
     <!-- Danger Zone (Cleaning Algorithm) -->
-    <div class="bg-red-50 dark:bg-red-900/10 rounded-2xl p-6 shadow-sm border border-red-100 dark:border-red-900/30">
+    <div class="bg-red-50 dark:bg-red-900/10 rounded-2xl p-6 shadow-xs border border-red-100 dark:border-red-900/30">
       <h2 class="text-xl font-semibold text-red-600 dark:text-red-400 mb-4">危险区域</h2>
       <p class="text-sm text-red-600/80 dark:text-red-400/80 mb-6">
         执行"彻底注销"将触发<b>清洁算法</b>：系统会递归删除您所有的账本、分类、账单以及<b>R2存储中的所有附件</b>，确保不留任何数据痕迹，然后安全退出。此操作不可恢复。
@@ -396,7 +396,7 @@ onMounted(async () => {
       <button
         @click="handleDeleteAllData"
         :disabled="isDeleting"
-        class="flex items-center gap-2 px-6 py-3 bg-white border border-red-200 text-red-600 rounded-xl hover:bg-red-600 hover:text-white hover:border-transparent transition-all shadow-sm"
+        class="flex items-center gap-2 px-6 py-3 bg-white border border-red-200 text-red-600 rounded-xl hover:bg-red-600 hover:text-white hover:border-transparent transition-all shadow-xs"
       >
         <Trash2 :size="18" />
         <span>{{ isDeleting ? '正在清洁数据...' : '彻底注销并清空数据' }}</span>
@@ -404,7 +404,7 @@ onMounted(async () => {
     </div>
 
     <!-- ADMIN ZONE (Only for Perfhelf) -->
-    <div v-if="isAdmin" class="bg-gray-900 text-white rounded-2xl p-6 shadow-xl border border-gray-700 mt-12">
+    <div v-if="isAdmin" class="bg-gray-900 text-white rounded-2xl p-6 shadow-lg border border-gray-700 mt-12">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-xl font-bold text-green-400 flex items-center gap-2">
                     🛡️ 授权中心 (Matrix Auth)
@@ -448,7 +448,7 @@ onMounted(async () => {
         <!-- All Users -->
         <div>
             <h3 class="text-gray-400 text-sm font-bold uppercase mb-4 tracking-wider">用户列表 ({{ unactionedUsers.length }} 待授权)</h3>
-             <input v-model="searchQuery" type="text" placeholder="🔍 搜索邮箱..." class="w-full bg-gray-800 border-none rounded-lg px-4 py-3 text-white mb-4 focus:ring-2 focus:ring-green-500 outline-none" />
+             <input v-model="searchQuery" type="text" placeholder="🔍 搜索邮箱..." class="w-full bg-gray-800 border-none rounded-lg px-4 py-3 text-white mb-4 focus:ring-2 focus:ring-green-500 outline-hidden" />
              
              <div class="space-y-2 max-h-96 overflow-y-auto pr-2">
                 <div v-if="loadingUsers" class="text-center py-4 text-gray-500">加载中...</div>
@@ -479,7 +479,7 @@ onMounted(async () => {
         </div>
         
         <div v-if="authType === 'timed'" class="mb-8 space-y-3">
-          <input type="date" v-model="authExpiryDate" :min="minExpiryDate" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white outline-none focus:border-green-500" />
+          <input type="date" v-model="authExpiryDate" :min="minExpiryDate" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white outline-hidden focus:border-green-500" />
           <div class="flex gap-2">
             <button class="flex-1 bg-gray-800 text-xs py-2 rounded text-gray-400 hover:text-white" @click="setQuickExpiry(30)">+30天</button>
             <button class="flex-1 bg-gray-800 text-xs py-2 rounded text-gray-400 hover:text-white" @click="setQuickExpiry(180)">+180天</button>

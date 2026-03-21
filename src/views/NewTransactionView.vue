@@ -159,11 +159,11 @@ async function handleSubmit() {
       <p class="text-gray-500 dark:text-slate-400 mt-1">记录一笔新的收入或支出</p>
     </div>
 
-    <form @submit.prevent="handleSubmit" class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700 space-y-6">
+    <form @submit.prevent="handleSubmit" class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xs border border-gray-100 dark:border-slate-700 space-y-6">
       <!-- Type Toggle -->
       <div class="flex gap-4">
-        <button type="button" @click="form.type = 'expense'" :class="['flex-1 py-3 rounded-xl font-medium transition-all', form.type === 'expense' ? 'bg-red-500 text-white shadow-lg shadow-red-500/30' : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400']">支出</button>
-        <button type="button" @click="form.type = 'income'" :class="['flex-1 py-3 rounded-xl font-medium transition-all', form.type === 'income' ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400']">收入</button>
+        <button type="button" @click="form.type = 'expense'" :class="['flex-1 py-3 rounded-xl font-medium transition-all', form.type === 'expense' ? 'bg-red-500 text-white shadow-md shadow-red-500/30' : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400']">支出</button>
+        <button type="button" @click="form.type = 'income'" :class="['flex-1 py-3 rounded-xl font-medium transition-all', form.type === 'income' ? 'bg-green-500 text-white shadow-md shadow-green-500/30' : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400']">收入</button>
       </div>
 
       <!-- Amount & Currency -->
@@ -171,13 +171,13 @@ async function handleSubmit() {
         <div class="flex-1">
           <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">金额 *</label>
           <div class="relative">
-             <input v-model="form.amount" type="number" step="0.01" placeholder="0.00" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-2xl font-bold text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-primary-500" />
+             <input v-model="form.amount" type="number" step="0.01" placeholder="0.00" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-2xl font-bold text-gray-900 dark:text-white placeholder-gray-400 outline-hidden focus:ring-2 focus:ring-primary-500" />
           </div>
         </div>
         <div class="w-32">
           <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">币种</label>
           <div class="relative">
-            <select v-model="form.currency" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white appearance-none cursor-pointer outline-none">
+            <select v-model="form.currency" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white appearance-none cursor-pointer outline-hidden">
               <option v-for="c in currencies" :key="c.code" :value="c.code">{{ c.code }}</option>
             </select>
             <ChevronDown :size="16" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -189,7 +189,7 @@ async function handleSubmit() {
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">分类</label>
         <div class="relative">
-          <select v-model="form.categoryId" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white appearance-none cursor-pointer outline-none">
+          <select v-model="form.categoryId" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white appearance-none cursor-pointer outline-hidden">
             <option value="">选择分类...</option>
             <option v-for="cat in parentCategories" :key="cat.id" :value="cat.id">{{ cat.icon }} {{ cat.name }}</option>
           </select>
@@ -201,7 +201,7 @@ async function handleSubmit() {
       <div v-if="subcategories.length > 0">
         <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">子分类</label>
         <div class="relative">
-          <select v-model="form.subcategoryId" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white appearance-none cursor-pointer outline-none">
+          <select v-model="form.subcategoryId" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white appearance-none cursor-pointer outline-hidden">
             <option value="">不选择子分类</option>
             <option v-for="sub in subcategories" :key="sub.id" :value="sub.id">{{ sub.icon }} {{ sub.name }}</option>
           </select>
@@ -213,7 +213,7 @@ async function handleSubmit() {
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">账本</label>
         <div class="relative">
-          <select v-model="form.ledgerId" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white appearance-none cursor-pointer outline-none">
+          <select v-model="form.ledgerId" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white appearance-none cursor-pointer outline-hidden">
             <option value="">总账户 (默认)</option>
             <option v-for="ledger in ledgers.filter(l => !l.is_archived)" :key="ledger.id" :value="ledger.id">{{ ledger.icon || '📒' }} {{ ledger.name }}</option>
           </select>
@@ -226,7 +226,7 @@ async function handleSubmit() {
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">日期</label>
         <div class="relative">
-          <input v-model="form.date" type="date" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white outline-none" />
+          <input v-model="form.date" type="date" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white outline-hidden" />
            <Calendar :size="18" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
       </div>
@@ -234,7 +234,7 @@ async function handleSubmit() {
       <!-- Description -->
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">备注</label>
-        <textarea v-model="form.description" rows="2" placeholder="添加备注..." class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 resize-none outline-none"></textarea>
+        <textarea v-model="form.description" rows="2" placeholder="添加备注..." class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 resize-none outline-hidden"></textarea>
       </div>
 
       <!-- SLOTS SYSTEM -->
@@ -252,7 +252,7 @@ async function handleSubmit() {
              @paste="handleSlotPaste($event, index)"
              @dragover.prevent
              @drop.prevent="handleSlotDrop($event, index)"
-             class="group relative transition-all rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+             class="group relative transition-all rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
              tabindex="0"
           >
              <!-- 1. FILLED STATE -->
@@ -295,7 +295,7 @@ async function handleSubmit() {
                 <button 
                   type="button"
                   @click.stop="triggerSlotInput(index)"
-                  class="p-4 bg-white dark:bg-slate-600 rounded-full shadow-sm text-gray-400 hover:text-primary-500 hover:shadow-md hover:scale-110 transition-all cursor-pointer z-10"
+                  class="p-4 bg-white dark:bg-slate-600 rounded-full shadow-xs text-gray-400 hover:text-primary-500 hover:shadow-sm hover:scale-110 transition-all cursor-pointer z-10"
                 >
                   <Upload :size="24" />
                 </button>
@@ -340,7 +340,7 @@ async function handleSubmit() {
       </div>
 
       <!-- Submit -->
-      <button type="submit" :disabled="isSubmitting" class="w-full py-4 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-400 text-white font-medium rounded-xl transition-all shadow-lg shadow-primary-500/30">
+      <button type="submit" :disabled="isSubmitting" class="w-full py-4 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-400 text-white font-medium rounded-xl transition-all shadow-md shadow-primary-500/30">
         {{ isSubmitting ? '保存中...' : '保存账单' }}
       </button>
     </form>

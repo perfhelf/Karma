@@ -130,7 +130,7 @@ async function handleDemoLogin() {
           <p class="text-gray-500 dark:text-slate-400">请登录您的账户</p>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-xl border border-gray-100 dark:border-slate-700">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-slate-700">
           <form @submit.prevent="handleLogin" class="space-y-5">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">邮箱</label>
@@ -138,7 +138,7 @@ async function handleDemoLogin() {
                 v-model="email"
                 type="email"
                 placeholder="your@email.com"
-                class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900 dark:text-white transition-all"
+                class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-hidden text-gray-900 dark:text-white transition-all"
               />
             </div>
 
@@ -148,7 +148,7 @@ async function handleDemoLogin() {
                 v-model="password"
                 type="password"
                 placeholder="••••••••"
-                class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900 dark:text-white transition-all"
+                class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-hidden text-gray-900 dark:text-white transition-all"
               />
             </div>
 
@@ -160,7 +160,7 @@ async function handleDemoLogin() {
                 <button
                 type="submit"
                 :disabled="isLoading"
-                class="w-full py-4 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white font-bold rounded-xl transition-all shadow-lg shadow-primary-600/30 transform active:scale-[0.98]"
+                class="w-full py-4 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white font-bold rounded-xl transition-all shadow-md shadow-primary-600/30 transform active:scale-[0.98]"
                 >
                 {{ isLoading ? '登录中...' : '立即登录' }}
                 </button>

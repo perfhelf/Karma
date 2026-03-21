@@ -59,7 +59,7 @@ async function handleLogout() {
       <RouterLink 
         to="/transactions/new"
         @click="$emit('close')"
-        class="flex items-center justify-center gap-2 w-full py-3 px-4 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium transition-all shadow-lg shadow-primary-500/30"
+        class="flex items-center justify-center gap-2 w-full py-3 px-4 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium transition-all shadow-md shadow-primary-500/30"
       >
         <Plus :size="20" />
         <span>新增账单</span>

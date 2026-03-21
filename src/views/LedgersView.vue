@@ -153,7 +153,7 @@ async function restoreLedger(ledger: any) {
         <button 
           v-if="!showArchivedView"
           @click="openAddModal" 
-          class="flex items-center gap-2 px-4 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all shadow-lg shadow-primary-500/30 font-medium"
+          class="flex items-center gap-2 px-4 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all shadow-md shadow-primary-500/30 font-medium"
         >
           <Plus :size="18" />
           <span>新建账本</span>
@@ -162,7 +162,7 @@ async function restoreLedger(ledger: any) {
     </div>
 
     <!-- Total Account Card (Only show in active view) -->
-    <div v-if="!showArchivedView" class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-6 text-white shadow-lg">
+    <div v-if="!showArchivedView" class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-6 text-white shadow-md">
       <div class="flex items-center justify-between">
         <div>
           <p class="text-primary-100 text-sm">总账户</p>
@@ -190,7 +190,7 @@ async function restoreLedger(ledger: any) {
       <div
         v-for="ledger in displayLedgers"
         :key="ledger.id"
-        class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700 relative overflow-hidden transition-all hover:shadow-md"
+        class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xs border border-gray-100 dark:border-slate-700 relative overflow-hidden transition-all hover:shadow-sm"
       >
         <div class="absolute top-0 left-0 right-0 h-1" :style="{ backgroundColor: ledger.color }"></div>
 
@@ -263,7 +263,7 @@ async function restoreLedger(ledger: any) {
                   v-model="newLedger.name" 
                   type="text" 
                   placeholder="例如：个人账本" 
-                  class="flex-1 px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-primary-500" 
+                  class="flex-1 px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white outline-hidden focus:ring-2 focus:ring-primary-500" 
                 />
               </div>
             </div>
@@ -291,7 +291,7 @@ async function restoreLedger(ledger: any) {
                       v-for="emoji in emojiCategories.find(c => c.name === activeCategory)?.emojis"
                       :key="emoji"
                       @click="newLedger.icon = emoji"
-                      :class="['w-9 h-9 rounded-lg text-xl flex items-center justify-center transition-all', newLedger.icon === emoji ? 'bg-white shadow-sm ring-2 ring-primary-500' : 'hover:bg-gray-200 dark:hover:bg-slate-600']"
+                      :class="['w-9 h-9 rounded-lg text-xl flex items-center justify-center transition-all', newLedger.icon === emoji ? 'bg-white shadow-xs ring-2 ring-primary-500' : 'hover:bg-gray-200 dark:hover:bg-slate-600']"
                     >{{ emoji }}</button>
                   </div>
                 </div>
@@ -324,7 +324,7 @@ async function restoreLedger(ledger: any) {
               <span class="hidden sm:inline">归档</span>
             </button>
             <button @click="showAddModal = false" class="flex-1 py-3 bg-white dark:bg-slate-600 border border-gray-200 dark:border-slate-500 text-gray-700 dark:text-slate-200 rounded-xl hover:bg-gray-50 transition-all font-medium">取消</button>
-            <button @click="saveLedger" class="flex-1 py-3 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all shadow-lg shadow-primary-500/30 font-medium">保存</button>
+            <button @click="saveLedger" class="flex-1 py-3 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all shadow-md shadow-primary-500/30 font-medium">保存</button>
           </div>
         </div>
       </div>

@@ -51,20 +51,18 @@ const router = createRouter({
     routes,
 })
 
-// Auth Guard
-router.beforeEach(async (to, _from, next) => {
+// Auth Guard — Vue Router 5 return pattern
+router.beforeEach(async (to) => {
     // Check if route requires auth
     if (to.matched.some(record => record.meta.requiresAuth)) {
         if (isDemoMode.value) {
-            next()
             return
         }
 
         const { data: { session } } = await supabase.auth.getSession()
 
         if (!session) {
-            next({ name: 'Login' })
-            return
+            return { name: 'Login' }
         }
     }
 
@@ -72,12 +70,9 @@ router.beforeEach(async (to, _from, next) => {
     if (to.name === 'Login') {
         const { data: { session } } = await supabase.auth.getSession()
         if (session) {
-            next({ name: 'Dashboard' })
-            return
+            return { name: 'Dashboard' }
         }
     }
-
-    next()
 })
 
 export default router

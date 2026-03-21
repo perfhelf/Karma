@@ -96,14 +96,14 @@ async function deleteCategory(cat: any) {
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">分类管理</h1>
         <p class="text-gray-500 dark:text-slate-400 mt-1">管理收支分类，支持多级分类</p>
       </div>
-      <button @click="openAddModal(null)" class="flex items-center gap-2 px-4 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all shadow-lg shadow-primary-500/30">
+      <button @click="openAddModal(null)" class="flex items-center gap-2 px-4 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all shadow-md shadow-primary-500/30">
         <Plus :size="18" />
         <span>新建分类</span>
       </button>
     </div>
 
     <!-- Categories List -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 divide-y divide-gray-100 dark:divide-slate-700">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xs border border-gray-100 dark:border-slate-700 divide-y divide-gray-100 dark:divide-slate-700">
       <div v-if="parentCategories.length === 0" class="text-center py-16 text-gray-400">
         <FolderTree :size="48" class="mx-auto mb-4 opacity-50" />
         <p class="text-lg">暂无分类</p>
@@ -173,7 +173,7 @@ async function deleteCategory(cat: any) {
     <Teleport to="body">
       <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center">
         <div class="absolute inset-0 bg-black/50" @click="showAddModal = false"></div>
-        <div class="relative bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-md shadow-xl">
+        <div class="relative bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-md shadow-lg">
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             {{ editingCategory ? '编辑分类' : (newCategory.parent_id ? '新建子分类' : '新建分类') }}
           </h2>
@@ -181,7 +181,7 @@ async function deleteCategory(cat: any) {
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">分类名称</label>
-              <input v-model="newCategory.name" type="text" placeholder="例如：餐饮" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white outline-none" />
+              <input v-model="newCategory.name" type="text" placeholder="例如：餐饮" class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white outline-hidden" />
             </div>
             
             <div>
@@ -206,7 +206,7 @@ async function deleteCategory(cat: any) {
                       v-for="emoji in emojiCategories.find(c => c.name === activeCategory)?.emojis"
                       :key="emoji"
                       @click="newCategory.icon = emoji"
-                      :class="['w-9 h-9 rounded-lg text-xl flex items-center justify-center transition-all', newCategory.icon === emoji ? 'bg-white shadow-sm ring-2 ring-primary-500' : 'hover:bg-gray-200 dark:hover:bg-slate-600']"
+                      :class="['w-9 h-9 rounded-lg text-xl flex items-center justify-center transition-all', newCategory.icon === emoji ? 'bg-white shadow-xs ring-2 ring-primary-500' : 'hover:bg-gray-200 dark:hover:bg-slate-600']"
                     >{{ emoji }}</button>
                   </div>
                 </div>

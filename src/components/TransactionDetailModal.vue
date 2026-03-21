@@ -187,7 +187,7 @@ function handleDelete() {
             </button>
             <button 
                 @click="emit('close')"
-                class="px-6 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all text-sm"
+                class="px-6 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold shadow-md hover:shadow-lg hover:scale-105 transition-all text-sm"
             >
                 关闭
             </button>

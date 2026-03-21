@@ -99,7 +99,7 @@ async function handleDeleteTransaction(id: string) {
     </div>
 
     <!-- Filters -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700 space-y-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xs border border-gray-100 dark:border-slate-700 space-y-4">
       <!-- Row 1 -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Search -->
@@ -109,7 +109,7 @@ async function handleDeleteTransaction(id: string) {
             v-model="searchQuery"
             type="text"
             placeholder="搜索备注、分类..."
-            class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-gray-900 dark:text-white placeholder-gray-400"
+            class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 outline-hidden text-gray-900 dark:text-white placeholder-gray-400"
           />
         </div>
 
@@ -117,7 +117,7 @@ async function handleDeleteTransaction(id: string) {
         <div class="relative">
           <select
             v-model="selectedLedger"
-            class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl outline-none text-gray-900 dark:text-white appearance-none cursor-pointer"
+            class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl outline-hidden text-gray-900 dark:text-white appearance-none cursor-pointer"
           >
             <option value="">全部账本</option>
             <option value="total">总账户</option>
@@ -132,7 +132,7 @@ async function handleDeleteTransaction(id: string) {
         <div class="relative">
           <select
             v-model="selectedCategory"
-            class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl outline-none text-gray-900 dark:text-white appearance-none cursor-pointer"
+            class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl outline-hidden text-gray-900 dark:text-white appearance-none cursor-pointer"
           >
             <option value="">全部分类</option>
             <template v-for="parent in parentCategories" :key="parent.id">
@@ -158,17 +158,17 @@ async function handleDeleteTransaction(id: string) {
         <!-- Date Range -->
         <div class="flex items-center gap-2">
           <Calendar :size="18" class="text-gray-400 shrink-0" />
-          <input v-model="dateRange.start" type="date" class="flex-1 min-w-0 px-3 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl outline-none text-gray-900 dark:text-white text-sm" />
+          <input v-model="dateRange.start" type="date" class="flex-1 min-w-0 px-3 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl outline-hidden text-gray-900 dark:text-white text-sm" />
           <span class="text-gray-400 shrink-0">至</span>
-          <input v-model="dateRange.end" type="date" class="flex-1 min-w-0 px-3 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl outline-none text-gray-900 dark:text-white text-sm" />
+          <input v-model="dateRange.end" type="date" class="flex-1 min-w-0 px-3 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl outline-hidden text-gray-900 dark:text-white text-sm" />
         </div>
 
         <!-- Amount Range -->
         <div class="flex items-center gap-2">
           <span class="text-gray-400 text-sm shrink-0">金额</span>
-          <input v-model="amountRange.min" type="number" placeholder="最低" class="flex-1 min-w-0 px-3 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl outline-none text-gray-900 dark:text-white placeholder-gray-400 text-sm" />
+          <input v-model="amountRange.min" type="number" placeholder="最低" class="flex-1 min-w-0 px-3 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl outline-hidden text-gray-900 dark:text-white placeholder-gray-400 text-sm" />
           <span class="text-gray-400 shrink-0">-</span>
-          <input v-model="amountRange.max" type="number" placeholder="最高" class="flex-1 min-w-0 px-3 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl outline-none text-gray-900 dark:text-white placeholder-gray-400 text-sm" />
+          <input v-model="amountRange.max" type="number" placeholder="最高" class="flex-1 min-w-0 px-3 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl outline-hidden text-gray-900 dark:text-white placeholder-gray-400 text-sm" />
         </div>
 
         <!-- Clear Button -->
@@ -182,7 +182,7 @@ async function handleDeleteTransaction(id: string) {
     </div>
 
     <!-- Transactions Table -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xs border border-gray-100 dark:border-slate-700 overflow-hidden">
       <div v-if="filteredTransactions.length === 0" class="text-center py-16 text-gray-400 dark:text-slate-500">
         <p class="text-lg">暂无匹配记录</p>
         <p class="text-sm mt-1">尝试调整筛选条件</p>
