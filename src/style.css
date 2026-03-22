@@ -2,6 +2,9 @@
 
 @import "tailwindcss";
 
+/* Tailwind v4: restore class-based dark mode (equivalent of old darkMode: 'class') */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Custom theme configuration for Tailwind v4 */
 @theme {
   --color-primary-50: #f0fdf4;
