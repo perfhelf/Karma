@@ -81,13 +81,14 @@ async function saveLedger() {
 
 async function setDefault(ledger: any) {
   try {
+    // 先快照旧默认，再做本地更新（避免竞态）
+    const prevDefault = ledgers.value.find(l => l.is_default && l.id !== ledger.id)
+
     // Optimistic update locally
     ledgers.value.forEach(l => l.is_default = (l.id === ledger.id))
     
     // Server update
-    const prevDefault = ledgers.value.find(l => l.is_default && l.id !== ledger.id)
     if (prevDefault) await updateLedger(prevDefault.id, { is_default: false })
-    
     await updateLedger(ledger.id, { is_default: true })
   } catch (e) {
     console.error(e)

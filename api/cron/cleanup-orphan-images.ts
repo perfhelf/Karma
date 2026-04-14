@@ -40,8 +40,13 @@ export default async function handler(req: any, res: any) {
         }
     }
 
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
+    if (!supabaseUrl) {
+        return res.status(500).json({ error: 'SUPABASE_URL not configured' })
+    }
+
     const supabase = createClient(
-        process.env.SUPABASE_URL!,
+        supabaseUrl,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 

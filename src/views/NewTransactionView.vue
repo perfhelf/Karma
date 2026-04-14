@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { 
   Calendar, 
@@ -44,8 +44,20 @@ const slots = ref<AttachmentSlot[]>([
 // In v-for, ref="fileInputs" creates an array.
 const fileInputs = ref<HTMLInputElement[]>([])
 
-// Helper for previews
-const getObjectUrl = (file: File) => URL.createObjectURL(file)
+// Helper for previews — cached blob URLs to prevent memory leaks
+const blobUrlCache = new Map<File, string>()
+function getObjectUrl(file: File): string {
+  let url = blobUrlCache.get(file)
+  if (!url) {
+    url = URL.createObjectURL(file)
+    blobUrlCache.set(file, url)
+  }
+  return url
+}
+onBeforeUnmount(() => {
+  blobUrlCache.forEach(url => URL.revokeObjectURL(url))
+  blobUrlCache.clear()
+})
 const MAX_SLOTS = 10
 
 // Slot Management
@@ -143,9 +155,15 @@ async function handleSubmit() {
     })
 
     router.push('/')
-  } catch (e) {
+  } catch (e: unknown) {
     console.error(e)
-    alert('保存失败')
+    const msg = String((e as any)?.message || '').toLowerCase()
+    if (msg.includes('refresh token') || msg.includes('not authenticated') || msg.includes('invalid jwt') || (e as any)?.__isAuthError) {
+      alert('登录已过期，请重新登录')
+      router.push('/login')
+    } else {
+      alert('保存失败: ' + ((e as any)?.message || '未知错误'))
+    }
   } finally {
     isSubmitting.value = false
   }
