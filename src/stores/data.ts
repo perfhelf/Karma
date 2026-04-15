@@ -247,8 +247,12 @@ export async function uploadFileToR2(file: File): Promise<Attachment | null> {
             }
         }
 
+        const { data: { session } } = await supabase.auth.getSession()
         const response = await fetch('/api/r2-upload', {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${session?.access_token}`
+            },
             body: formData
         })
 
@@ -426,9 +430,13 @@ export async function deleteLedger(id: string) {
                     const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
 
                     try {
+                        const { data: { session: delSession } } = await supabase.auth.getSession()
                         const res = await fetch('/api/r2-delete', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${delSession?.access_token}`
+                            },
                             body: JSON.stringify({ key: att.key }),
                             signal: controller.signal
                         });
@@ -548,10 +556,14 @@ export async function deleteTransaction(id: string) {
 
         if (!isDemoMode.value) {
             // We use Promise.allSettled to ensure we try to delete all, even if some fail
+            const { data: { session: txnSession } } = await supabase.auth.getSession()
             const deletePromises = txn.attachments.map(att =>
                 fetch('/api/r2-delete', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${txnSession?.access_token}`
+                    },
                     body: JSON.stringify({ key: att.key })
                 })
                     .then(res => {

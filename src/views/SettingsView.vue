@@ -100,12 +100,17 @@ async function handleDeleteAllData() {
     console.log(`[Cleaning Algorithm] Found ${allKeys.length} files to delete from R2.`)
     
     // Step 2: Delete from R2 (Concurrent batches)
+    const { data: { session } } = await supabase.auth.getSession()
     const chunkSize = 5 // Limit concurrency
     for (let i = 0; i < allKeys.length; i += chunkSize) {
       const chunk = allKeys.slice(i, i + chunkSize)
       await Promise.all(chunk.map(key => 
         fetch('/api/r2-delete', {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`
+          },
           body: JSON.stringify({ key })
         }).catch(err => console.error(`Failed to delete ${key}`, err))
       ))
